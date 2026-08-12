@@ -616,7 +616,10 @@ let current=null;
 function showPlan(p){
   current=p;
   $('#planOut').innerHTML=`<h3 class="font-extrabold text-sage">Plano ${p.tipo} • ${p.comp} • ${p.ano} Ano</h3>
+    <p class="mt-1 text-xs"><b>Professor(a):</b> ${esc(p.prof||'—')} • <b>Turma:</b> ${esc(p.turma||'—')}</p>
     <p class="mt-2 text-xs"><b>Habilidade BNCC:</b> ${esc(p.hab)}</p>
+    <p class="mt-1 text-xs"><b>Competências gerais:</b> ${esc(p.comp_gerais||'—')}</p>
+
     <p class="mt-1 text-xs"><b>Tema/Objetivo:</b> ${esc(p.tema)}</p>
     <p class="mt-1 text-xs"><b>Metodologia:</b> ${esc(p.met||'—')}</p>
     <p class="mt-1 text-xs"><b>Recursos:</b> ${esc(p.rec||'—')}</p>
