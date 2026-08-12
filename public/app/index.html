@@ -693,7 +693,7 @@ $('#bkData').value=new Date().toISOString().slice(0,10);
 $('#fTurno').onchange=renderGrade; $('#fProf').onchange=renderGrade;
 $('#plComp').onchange=fillHabs; $('#plAno').onchange=fillHabs;
 applyTheme(); setQuote(); renderReminders(); renderSpaceTabs(); renderBooks(); renderGrade();
-renderPedTabs(); renderCal(); fillHabs(); renderPlans(); renderBncc(); go('tab1');
+renderPedTabs(); renderCal(); fillHabs(); renderPlanSearch(); renderPlans(); renderBncc(); go('tab1');
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js').catch(()=>{});
 </script>
