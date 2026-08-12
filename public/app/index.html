@@ -133,7 +133,16 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
 
   <!-- gerador de planos -->
   <div id="ped-plan" class="hidden space-y-3">
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-2">
+      <h3 class="text-sm font-extrabold"><i class="fa-solid fa-user-magnifying-glass mr-1 text-sage"></i> Busca para planejamento</h3>
+      <p class="text-[11px] text-graphite dark:text-slate-400">Pesquise por professor(a), componente, turma ou assunto e veja as habilidades e competências a desenvolver.</p>
+      <input id="qPlan" list="profList" class="fld" placeholder="Ex.: Cleide, Matemática, 72.01, frações..." />
+      <datalist id="profList"></datalist>
+      <div class="flex gap-2 overflow-x-auto pb-1" id="qPlanTurmas"></div>
+      <div id="planSearchOut" class="space-y-2 max-h-[28rem] overflow-y-auto"></div>
+    </div>
     <form id="planForm" class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-3">
+
       <div class="grid grid-cols-2 gap-2">
         <div><label class="text-[11px] font-bold">Tipo de plano</label><select id="plTipo" class="fld mt-1"></select></div>
         <div><label class="text-[11px] font-bold">Ano</label><select id="plAno" class="fld mt-1"></select></div>
