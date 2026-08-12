@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>EducaTO • Painel Pedagógico 2026</title>
+<meta name="description" content="PWA educacional offline para professores, direção e coordenação: horários, agendamentos, calendário letivo 2026 e guia BNCC." />
+<meta name="theme-color" content="#0d9488" />
+<link rel="manifest" href="/app/manifest.webmanifest" />
+<link rel="apple-touch-icon" href="/app/icon-192.png" />
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: { extend: { colors: {
+    sage: '#0d9488', sagedark: '#0f766e', navy: '#0f172a', mint: '#f0fdfa', graphite: '#334155'
+  }, fontFamily: { sans: ['Nunito','system-ui','sans-serif'] } } }
+};
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html,body{-webkit-tap-highlight-color:transparent}
+  body{padding-bottom:env(safe-area-inset-bottom)}
+  .tabpane{animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  ::-webkit-scrollbar{width:0;height:0}
+</style>
+</head>
+<body class="font-sans bg-mint text-navy dark:bg-navy dark:text-mint transition-colors">
+
+<header class="sticky top-0 z-30 bg-sage text-white shadow-lg">
+  <div class="px-4 pt-5 pb-4 flex items-center justify-between">
+    <div>
+      <p class="text-[11px] uppercase tracking-widest opacity-80">SEDUC-TO • 2026</p>
+      <h1 class="text-lg font-extrabold leading-tight" id="pageTitle">Bem-vindo(a)</h1>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="themeBtn" class="w-10 h-10 rounded-full bg-white/15 active:scale-95 transition"><i class="fa-solid fa-moon"></i></button>
+      <button data-go="tab5" class="w-10 h-10 rounded-full bg-white/15 active:scale-95 transition"><i class="fa-solid fa-gear"></i></button>
+    </div>
+  </div>
+</header>
+
+<main class="px-4 pt-4 pb-28 max-w-xl mx-auto">
+
+  <!-- TAB 1 -->
+  <section id="tab1" class="tabpane space-y-4">
+    <div class="rounded-3xl p-5 bg-gradient-to-br from-sage to-sagedark text-white shadow-xl">
+      <p class="text-[11px] uppercase tracking-widest opacity-80"><i class="fa-solid fa-seedling mr-1"></i> Inspiração do dia</p>
+      <p id="quote" class="mt-2 text-[15px] font-semibold leading-snug"></p>
+      <button id="newQuote" class="mt-3 text-xs bg-white/20 rounded-full px-3 py-1.5 active:scale-95 transition">Nova mensagem</button>
+    </div>
+
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
+      <label class="text-xs font-bold text-graphite dark:text-slate-300">Professor(a)</label>
+      <select id="homeTeacher" class="mt-2 w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-mint dark:bg-slate-700 px-3 py-2.5 text-sm font-semibold"></select>
+      <p class="mt-3 text-xs font-bold text-graphite dark:text-slate-300" id="todayLabel"></p>
+      <ul id="homeClasses" class="mt-2 space-y-2"></ul>
+    </div>
+
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
+      <div class="flex justify-between items-center text-sm font-bold"><span><i class="fa-solid fa-book-open text-sage mr-1"></i> Leitura das dicas BNCC</span><span id="progPct">0%</span></div>
+      <div class="mt-2 h-3 rounded-full bg-slate-200 dark:bg-slate-600 overflow-hidden">
+        <div id="progBar" class="h-full bg-sage transition-all duration-500" style="width:0%"></div>
+      </div>
+      <p class="mt-2 text-xs text-graphite dark:text-slate-400" id="progText"></p>
+    </div>
+
+    <div class="grid grid-cols-3 gap-3">
+      <button data-book="Chromebooks" class="quick rounded-2xl p-3 bg-white dark:bg-slate-800 shadow text-center active:scale-95 transition">
+        <i class="fa-solid fa-laptop text-sage text-xl"></i><p class="text-[11px] mt-1 font-bold">Chromebooks</p></button>
+      <button data-book="Sala de Vídeo" class="quick rounded-2xl p-3 bg-white dark:bg-slate-800 shadow text-center active:scale-95 transition">
+        <i class="fa-solid fa-tv text-sage text-xl"></i><p class="text-[11px] mt-1 font-bold">Sala de Vídeo</p></button>
+      <button data-book="Laboratório de Ciências" class="quick rounded-2xl p-3 bg-white dark:bg-slate-800 shadow text-center active:scale-95 transition">
+        <i class="fa-solid fa-flask text-sage text-xl"></i><p class="text-[11px] mt-1 font-bold">Laboratório</p></button>
+    </div>
+  </section>
+
+  <!-- TAB 2 -->
+  <section id="tab2" class="tabpane hidden space-y-4">
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-3">
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="text-[11px] font-bold text-graphite dark:text-slate-300">Turno</label>
+          <select id="fTurno" class="w-full mt-1 rounded-xl bg-mint dark:bg-slate-700 px-3 py-2 text-sm"></select></div>
+        <div><label class="text-[11px] font-bold text-graphite dark:text-slate-300">Dia</label>
+          <select id="fDia" class="w-full mt-1 rounded-xl bg-mint dark:bg-slate-700 px-3 py-2 text-sm"></select></div>
+      </div>
+      <div><label class="text-[11px] font-bold text-graphite dark:text-slate-300">Professor(a)</label>
+        <select id="fProf" class="w-full mt-1 rounded-xl bg-mint dark:bg-slate-700 px-3 py-2 text-sm"></select></div>
+    </div>
+    <div id="gradeList" class="space-y-2"></div>
+
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
+      <h3 class="font-extrabold text-sm"><i class="fa-solid fa-calendar-plus text-sage mr-1"></i> Novo agendamento de espaço</h3>
+      <div class="grid grid-cols-2 gap-3 mt-3">
+        <select id="aRecurso" class="rounded-xl bg-mint dark:bg-slate-700 px-3 py-2 text-sm col-span-2"></select>
+        <select id="aProf" class="rounded-xl bg-mint dark:bg-slate-700 px-3 py-2 text-sm col-span-2"></select>
+        <input id="aData" type="date" class="rounded-xl bg-mint dark:bg-slate-700 px-3 py-2 text-sm" />
+        <select id="aAula" class="rounded-xl bg-mint dark:bg-slate-700 px-3 py-2 text-sm"></select>
+        <input id="aTurma" placeholder="Turma (ex: 7º A)" class="rounded-xl bg-mint dark:bg-slate-700 px-3 py-2 text-sm col-span-2" />
+      </div>
+      <button id="aSalvar" class="mt-3 w-full bg-sage text-white rounded-xl py-3 font-bold text-sm active:scale-95 transition">Agendar</button>
+      <p id="aMsg" class="mt-2 text-xs font-bold"></p>
+    </div>
+
+    <div>
+      <h3 class="font-extrabold text-sm mb-2">Agendamentos salvos</h3>
+      <div id="bookList" class="space-y-2"></div>
+    </div>
+  </section>
+
+  <!-- TAB 3 -->
+  <section id="tab3" class="tabpane hidden space-y-4">
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow grid grid-cols-3 gap-2 text-center">
+      <div><p class="text-2xl font-extrabold text-sage">200</p><p class="text-[10px] font-bold text-graphite dark:text-slate-400">DIAS LETIVOS</p></div>
+      <div><p class="text-2xl font-extrabold text-sage">02/02</p><p class="text-[10px] font-bold text-graphite dark:text-slate-400">INÍCIO</p></div>
+      <div><p class="text-2xl font-extrabold text-sage">18/12</p><p class="text-[10px] font-bold text-graphite dark:text-slate-400">ENCERRAMENTO</p></div>
+    </div>
+    <div id="timeline" class="relative pl-6 space-y-3 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-sage/30"></div>
+  </section>
+
+  <!-- TAB 4 -->
+  <section id="tab4" class="tabpane hidden space-y-4">
+    <div class="relative">
+      <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-graphite/60"></i>
+      <input id="search" placeholder="Buscar dica, componente ou palavra-chave" class="w-full rounded-2xl pl-10 pr-4 py-3 bg-white dark:bg-slate-800 shadow text-sm" />
+    </div>
+    <div class="flex gap-2 overflow-x-auto pb-1" id="tipFilters"></div>
+    <div id="tipList" class="space-y-3"></div>
+
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
+      <h3 class="font-extrabold text-sm"><i class="fa-solid fa-calculator text-sage mr-1"></i> Média bimestral & frequência</h3>
+      <div class="grid grid-cols-4 gap-2 mt-3">
+        <input id="n1" type="number" placeholder="N1" class="rounded-xl bg-mint dark:bg-slate-700 px-2 py-2 text-sm" />
+        <input id="n2" type="number" placeholder="N2" class="rounded-xl bg-mint dark:bg-slate-700 px-2 py-2 text-sm" />
+        <input id="n3" type="number" placeholder="N3" class="rounded-xl bg-mint dark:bg-slate-700 px-2 py-2 text-sm" />
+        <input id="n4" type="number" placeholder="N4" class="rounded-xl bg-mint dark:bg-slate-700 px-2 py-2 text-sm" />
+        <input id="pres" type="number" placeholder="Presenças" class="rounded-xl bg-mint dark:bg-slate-700 px-2 py-2 text-sm col-span-2" />
+        <input id="tot" type="number" placeholder="Total aulas" class="rounded-xl bg-mint dark:bg-slate-700 px-2 py-2 text-sm col-span-2" />
+      </div>
+      <button id="calcBtn" class="mt-3 w-full bg-navy dark:bg-sage text-white rounded-xl py-2.5 font-bold text-sm active:scale-95 transition">Calcular</button>
+      <p id="calcOut" class="mt-2 text-sm font-bold"></p>
+    </div>
+
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
+      <h3 class="font-extrabold text-sm"><i class="fa-solid fa-wand-magic-sparkles text-sage mr-1"></i> Gerador rápido de plano de aula</h3>
+      <div class="grid gap-2 mt-3">
+        <input id="pComp" placeholder="Componente curricular" class="rounded-xl bg-mint dark:bg-slate-700 px-3 py-2 text-sm" />
+        <input id="pTema" placeholder="Tema da aula" class="rounded-xl bg-mint dark:bg-slate-700 px-3 py-2 text-sm" />
+        <input id="pTurma" placeholder="Turma / ano" class="rounded-xl bg-mint dark:bg-slate-700 px-3 py-2 text-sm" />
+      </div>
+      <button id="planBtn" class="mt-3 w-full bg-sage text-white rounded-xl py-2.5 font-bold text-sm active:scale-95 transition">Gerar plano</button>
+      <pre id="planOut" class="mt-3 hidden whitespace-pre-wrap text-xs bg-mint dark:bg-slate-700 rounded-xl p-3 leading-relaxed"></pre>
+      <button id="copyPlan" class="mt-2 hidden text-xs font-bold text-sage">Copiar plano</button>
+    </div>
+  </section>
+
+  <!-- TAB 5 -->
+  <section id="tab5" class="tabpane hidden space-y-4">
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow flex items-center justify-between">
+      <div><p class="font-bold text-sm">Modo escuro</p><p class="text-xs text-graphite dark:text-slate-400">Conforto visual noturno</p></div>
+      <button id="themeSwitch" class="w-14 h-8 rounded-full bg-slate-300 dark:bg-sage relative transition">
+        <span id="knob" class="absolute top-1 left-1 w-6 h-6 rounded-full bg-white transition-all"></span></button>
+    </div>
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
+      <h3 class="font-extrabold text-sm mb-2"><i class="fa-solid fa-mobile-screen text-sage mr-1"></i> Instalar como PWA</h3>
+      <ol class="list-decimal ml-4 text-xs space-y-1.5 text-graphite dark:text-slate-300">
+        <li>Abra o app no Chrome (Android) ou Safari (iPhone).</li>
+        <li>Toque no menu do navegador (⋮ ou compartilhar).</li>
+        <li>Escolha <b>Instalar aplicativo</b> / <b>Adicionar à Tela de Início</b>.</li>
+        <li>Confirme: o ícone aparecerá na tela inicial e funcionará offline.</li>
+      </ol>
+      <button id="installBtn" class="mt-3 hidden w-full bg-sage text-white rounded-xl py-2.5 font-bold text-sm">Instalar agora</button>
+    </div>
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
+      <h3 class="font-extrabold text-sm mb-2"><i class="fa-brands fa-android text-sage mr-1"></i> Gerar APK (PWABuilder)</h3>
+      <ol class="list-decimal ml-4 text-xs space-y-1.5 text-graphite dark:text-slate-300">
+        <li>Acesse <b>pwabuilder.com</b> no computador.</li>
+        <li>Cole o endereço público deste app e clique em <b>Start</b>.</li>
+        <li>Revise o relatório (Manifest, Service Worker, Segurança).</li>
+        <li>Clique em <b>Package for stores → Android</b>.</li>
+        <li>Baixe o pacote e instale o arquivo <b>.apk</b> no celular.</li>
+      </ol>
+    </div>
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
+      <h3 class="font-extrabold text-sm mb-2"><i class="fa-solid fa-database text-sage mr-1"></i> Dados locais</h3>
+      <p class="text-xs text-graphite dark:text-slate-300">Agendamentos, favoritos e leituras ficam salvos apenas neste aparelho.</p>
+      <button id="resetBtn" class="mt-3 w-full border border-red-400 text-red-500 rounded-xl py-2.5 font-bold text-sm">Apagar dados locais</button>
+    </div>
+  </section>
+</main>
+
+<nav class="fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-slate-800/95 backdrop-blur border-t border-slate-200 dark:border-slate-700">
+  <div class="max-w-xl mx-auto grid grid-cols-5 pb-[env(safe-area-inset-bottom)]">
+    <button data-go="tab1" class="navbtn py-2.5 text-center"><i class="fa-solid fa-house block text-lg"></i><span class="text-[10px] font-bold">Home</span></button>
+    <button data-go="tab2" class="navbtn py-2.5 text-center"><i class="fa-solid fa-table-list block text-lg"></i><span class="text-[10px] font-bold">Horários</span></button>
+    <button data-go="tab3" class="navbtn py-2.5 text-center"><i class="fa-solid fa-calendar-days block text-lg"></i><span class="text-[10px] font-bold">Calendário</span></button>
+    <button data-go="tab4" class="navbtn py-2.5 text-center"><i class="fa-solid fa-lightbulb block text-lg"></i><span class="text-[10px] font-bold">BNCC</span></button>
+    <button data-go="tab5" class="navbtn py-2.5 text-center"><i class="fa-solid fa-gear block text-lg"></i><span class="text-[10px] font-bold">Config</span></button>
+  </div>
+</nav>
+
+<script>
+/* ---------------- DADOS ---------------- */
+const PROFS=["Thayana","Hudson","José Luiz","Renata","Laís","Welington","Rodrigo","Fernanda P.","Cleide","Ludimila","Fred","Clevison","Patrícia","Fernanda B."];
+const TURNOS=["Matutino","Vespertino","Jornada Ampliada"];
+const DIAS=["Segunda","Terça","Quarta","Quinta","Sexta"];
+const COMPS=["Língua Portuguesa","Matemática","Ciências","História","Geografia","Arte","Educação Física","Inglês","Ensino Religioso","Projeto de Vida"];
+const TURMAS=["6º A","6º B","7º A","7º B","8º A","8º B","9º A","9º B"];
+const AULAS=["1ª aula","2ª aula","3ª aula","4ª aula","5ª aula"];
+const HOR={Matutino:["07:00","07:50","08:40","09:50","10:40"],Vespertino:["13:00","13:50","14:40","15:50","16:40"],"Jornada Ampliada":["11:00","11:50","16:40","17:30","18:20"]};
+const QUOTES=["Ensinar não é transferir conhecimento, mas criar as possibilidades para a sua produção. — Paulo Freire",
+"Cada aula é uma nova chance de acender uma curiosidade.",
+"Educar é semear com sabedoria e colher com paciência.",
+"Sua escuta atenta pode ser a virada na história de um estudante.",
+"Planejar é cuidar do tempo de aprender de cada turma.",
+"Pequenos avanços diários constroem grandes trajetórias."];
+
+function seedGrade(){
+  let g=[],i=0;
+  PROFS.forEach((p,pi)=>{
+    const turno=TURNOS[pi%3];
+    DIAS.forEach((d,di)=>{
+      for(let a=0;a<3;a++){
+        i++;
+        g.push({prof:p,turno,dia:d,aula:a+1,hora:HOR[turno][a],turma:TURMAS[(pi+di+a)%TURMAS.length],comp:COMPS[(pi+a)%COMPS.length]});
+      }
+    });
+  });
+  return g;
+}
+const GRADE=seedGrade();
+
+const TIPS=[
+ {c:"Língua Portuguesa",t:"Roda de leitura com curadoria dos alunos",d:"Cada estudante escolhe um texto curto e apresenta em 3 minutos. Trabalha oralidade, fluência e argumentação.",h:"EF69LP44"},
+ {c:"Língua Portuguesa",t:"Reescrita colaborativa",d:"Produção textual em duplas com revisão cruzada usando rubrica simples de coesão e coerência.",h:"EF69LP08"},
+ {c:"Matemática",t:"Matemática do mercado",d:"Simule compras com folhetos reais: porcentagem, desconto e comparação de preços.",h:"EF07MA02"},
+ {c:"Matemática",t:"Geometria com o corpo",d:"Medição de ângulos e áreas do pátio com trena e app de bússola.",h:"EF08MA15"},
+ {c:"Ciências",t:"Laboratório de baixo custo",d:"Experimento de densidade com óleo, água e álcool; registro em diário de bordo.",h:"EF09CI03"},
+ {c:"Ciências",t:"Horta investigativa",d:"Ciclo de vida das plantas com controle de variáveis e gráficos de crescimento.",h:"EF06CI05"},
+ {c:"História",t:"Linha do tempo viva",d:"Turma monta cronologia no corredor com fontes e imagens comentadas.",h:"EF07HI03"},
+ {c:"Geografia",t:"Mapa afetivo do bairro",d:"Cartografia social com Google Maps offline e legendas criadas pelos alunos.",h:"EF08GE10"},
+ {c:"Arte",t:"Releitura digital",d:"Uso dos Chromebooks para releituras de obras com editor gratuito.",h:"EF69AR05"},
+ {c:"Educação Física",t:"Jogos cooperativos",d:"Circuito sem eliminação com foco em pertencimento e regras negociadas.",h:"EF67EF08"},
+ {c:"Inglês",t:"Legendas colaborativas",d:"Trecho de vídeo na Sala de Vídeo legendado em grupo com vocabulário-chave.",h:"EF07LI09"},
+ {c:"Projeto de Vida",t:"Carta para o meu eu de 2030",d:"Escrita reflexiva e definição de metas trimestrais visíveis no mural.",h:"—"}
+];
+
+const CAL=[
+ {d:"02/Fev",t:"Início do ano letivo 2026",i:"fa-flag",k:"marco"},
+ {d:"09–13/Mar",t:"SAETO • Avaliação Diagnóstica",i:"fa-clipboard-check",k:"saeto"},
+ {d:"21/Abr",t:"Feriado • Tiradentes",i:"fa-umbrella-beach",k:"feriado"},
+ {d:"30/Jun",t:"Encerramento do 1º semestre",i:"fa-hourglass-half",k:"marco"},
+ {d:"01–15/Jul",t:"Recesso do meio do ano",i:"fa-mug-hot",k:"recesso"},
+ {d:"16/Jul",t:"Retomada das aulas • 2º semestre",i:"fa-rotate-right",k:"marco"},
+ {d:"17–20/Ago",t:"SAETO • Avaliação Processual",i:"fa-clipboard-list",k:"saeto"},
+ {d:"15/Out",t:"Dia do Professor",i:"fa-award",k:"feriado"},
+ {d:"16–27/Nov",t:"SAETO • Avaliação Final",i:"fa-clipboard-question",k:"saeto"},
+ {d:"18/Dez",t:"Encerramento do ano letivo • 200 dias",i:"fa-graduation-cap",k:"marco"}
+];
+
+/* ---------------- ESTADO ---------------- */
+const KEY="educato2026";
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}};
+let S=Object.assign({theme:"light",teacher:PROFS[0],books:[],favs:[],read:[]},load());
+const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
+
+/* ---------------- TEMA ---------------- */
+function applyTheme(){
+  document.documentElement.classList.toggle("dark",S.theme==="dark");
+  document.getElementById("themeBtn").innerHTML=S.theme==="dark"?'<i class="fa-solid fa-sun"></i>':'<i class="fa-solid fa-moon"></i>';
+  document.getElementById("knob").style.left=S.theme==="dark"?"1.75rem":"0.25rem";
+}
+const toggleTheme=()=>{S.theme=S.theme==="dark"?"light":"dark";save();applyTheme();};
+themeBtn.onclick=toggleTheme; themeSwitch.onclick=toggleTheme;
+
+/* ---------------- NAVEGAÇÃO ---------------- */
+const TITLES={tab1:"Bem-vindo(a)",tab2:"Horários & Agendamentos",tab3:"Calendário Letivo 2026",tab4:"Guia BNCC & Ferramentas",tab5:"Configurações"};
+function go(id){
+  document.querySelectorAll(".tabpane").forEach(s=>s.classList.add("hidden"));
+  const el=document.getElementById(id); el.classList.remove("hidden");
+  el.classList.remove("tabpane"); void el.offsetWidth; el.classList.add("tabpane");
+  pageTitle.textContent=TITLES[id];
+  document.querySelectorAll(".navbtn").forEach(b=>{
+    const on=b.dataset.go===id;
+    b.className="navbtn py-2.5 text-center "+(on?"text-sage":"text-graphite/60 dark:text-slate-400");
+  });
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+
+/* ---------------- SELECTS ---------------- */
+const fill=(el,arr,all)=>{el.innerHTML=(all?`<option value="">${all}</option>`:"")+arr.map(v=>`<option>${v}</option>`).join("")};
+fill(homeTeacher,PROFS); fill(fProf,PROFS,"Todos os professores");
+fill(fTurno,TURNOS,"Todos os turnos"); fill(fDia,DIAS,"Todos os dias");
+fill(aProf,PROFS); fill(aAula,AULAS);
+fill(aRecurso,["Chromebooks","Sala de Vídeo","Laboratório de Ciências"]);
+homeTeacher.value=S.teacher;
+
+/* ---------------- HOME ---------------- */
+const setQuote=()=>quote.textContent=QUOTES[Math.floor(Math.random()*QUOTES.length)];
+newQuote.onclick=setQuote; setQuote();
+
+function todayName(){const n=new Date().getDay();return DIAS[Math.min(Math.max(n-1,0),4)];}
+function renderHome(){
+  S.teacher=homeTeacher.value;save();
+  todayLabel.textContent="Aulas de hoje ("+todayName()+")";
+  const rows=GRADE.filter(g=>g.prof===S.teacher&&g.dia===todayName());
+  homeClasses.innerHTML=rows.length?rows.map(r=>`
+    <li class="flex items-center gap-3 rounded-xl bg-mint dark:bg-slate-700 p-3">
+      <span class="w-14 text-center text-sm font-extrabold text-sage">${r.hora}</span>
+      <span class="flex-1"><b class="text-sm">${r.turma}</b><br><span class="text-xs text-graphite dark:text-slate-300">${r.comp} • ${r.turno}</span></span>
+    </li>`).join(""):`<li class="text-xs text-graphite dark:text-slate-400">Sem aulas registradas para hoje.</li>`;
+  renderProgress();
+}
+homeTeacher.onchange=renderHome;
+
+function renderProgress(){
+  const pct=Math.round(S.read.length/TIPS.length*100);
+  progBar.style.width=pct+"%"; progPct.textContent=pct+"%";
+  progText.textContent=`${S.read.length} de ${TIPS.length} dicas lidas. Toque em uma dica na aba BNCC para marcar como lida.`;
+}
+
+/* ---------------- HORÁRIOS ---------------- */
+function renderGrade(){
+  const rows=GRADE.filter(g=>(!fTurno.value||g.turno===fTurno.value)&&(!fDia.value||g.dia===fDia.value)&&(!fProf.value||g.prof===fProf.value));
+  gradeList.innerHTML=rows.length?rows.map(r=>`
+    <div class="rounded-2xl bg-white dark:bg-slate-800 shadow p-3 flex items-center gap-3">
+      <div class="w-14 text-center"><p class="text-sm font-extrabold text-sage">${r.hora}</p><p class="text-[10px] text-graphite dark:text-slate-400">${r.aula}ª</p></div>
+      <div class="flex-1"><p class="text-sm font-bold">${r.turma} • ${r.comp}</p>
+      <p class="text-[11px] text-graphite dark:text-slate-400">${r.prof} • ${r.dia} • ${r.turno}</p></div>
+    </div>`).join(""):`<p class="text-xs text-graphite dark:text-slate-400">Nenhum horário para os filtros selecionados.</p>`;
+}
+[fTurno,fDia,fProf].forEach(s=>s.onchange=renderGrade);
+
+function renderBooks(){
+  bookList.innerHTML=S.books.length?S.books.map((b,i)=>`
+    <div class="rounded-2xl bg-white dark:bg-slate-800 shadow p-3 flex items-center gap-3">
+      <i class="fa-solid ${b.rec==="Chromebooks"?"fa-laptop":b.rec==="Sala de Vídeo"?"fa-tv":"fa-flask"} text-sage"></i>
+      <div class="flex-1"><p class="text-sm font-bold">${b.rec} • ${b.aula}</p>
+      <p class="text-[11px] text-graphite dark:text-slate-400">${b.data.split("-").reverse().join("/")} • ${b.prof} • ${b.turma}</p></div>
+      <button data-del="${i}" class="text-red-500 px-2"><i class="fa-solid fa-trash"></i></button>
+    </div>`).join(""):`<p class="text-xs text-graphite dark:text-slate-400">Nenhum agendamento salvo.</p>`;
+  bookList.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{S.books.splice(+b.dataset.del,1);save();renderBooks();});
+}
+aSalvar.onclick=()=>{
+  const b={rec:aRecurso.value,prof:aProf.value,data:aData.value,aula:aAula.value,turma:aTurma.value.trim()};
+  if(!b.data||!b.turma){aMsg.className="mt-2 text-xs font-bold text-red-500";aMsg.textContent="Preencha data e turma.";return;}
+  if(S.books.some(x=>x.rec===b.rec&&x.data===b.data&&x.aula===b.aula)){
+    aMsg.className="mt-2 text-xs font-bold text-red-500";
+    aMsg.textContent="Conflito: este espaço já está reservado nesse dia e horário.";return;}
+  S.books.push(b);S.books.sort((x,y)=>x.data.localeCompare(y.data));save();renderBooks();
+  aMsg.className="mt-2 text-xs font-bold text-sage";aMsg.textContent="Agendamento confirmado!";aTurma.value="";
+};
+document.querySelectorAll(".quick").forEach(q=>q.onclick=()=>{go("tab2");aRecurso.value=q.dataset.book;aRecurso.scrollIntoView({behavior:"smooth",block:"center"});});
+
+/* ---------------- CALENDÁRIO ---------------- */
+const COLOR={saeto:"bg-sage text-white",recesso:"bg-amber-400 text-navy",feriado:"bg-slate-400 text-white",marco:"bg-navy text-white"};
+timeline.innerHTML=CAL.map(e=>`
+  <div class="relative">
+    <span class="absolute -left-[1.35rem] top-3 w-4 h-4 rounded-full ${COLOR[e.k]} grid place-items-center text-[8px]"><i class="fa-solid ${e.i}"></i></span>
+    <div class="rounded-2xl bg-white dark:bg-slate-800 shadow p-3">
+      <p class="text-[11px] font-extrabold text-sage">${e.d}</p>
+      <p class="text-sm font-bold">${e.t}</p>
+    </div>
+  </div>`).join("");
+
+/* ---------------- BNCC ---------------- */
+let tipFilter="Todos";
+tipFilters.innerHTML=["Todos","Favoritos",...new Set(TIPS.map(t=>t.c))].map(c=>
+ `<button data-f="${c}" class="chip whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 shadow">${c}</button>`).join("");
+function renderTips(){
+  const q=search.value.toLowerCase();
+  const list=TIPS.filter(t=>{
+    const okF=tipFilter==="Todos"||(tipFilter==="Favoritos"?S.favs.includes(t.t):t.c===tipFilter);
+    const okQ=!q||(t.t+t.d+t.c+t.h).toLowerCase().includes(q);
+    return okF&&okQ;});
+  tipList.innerHTML=list.length?list.map(t=>{
+    const fav=S.favs.includes(t.t),read=S.read.includes(t.t);
+    return `<div data-tip="${t.t}" class="rounded-2xl bg-white dark:bg-slate-800 shadow p-4 border-l-4 ${read?"border-sage":"border-transparent"}">
+      <div class="flex justify-between gap-2">
+        <div><p class="text-[10px] font-extrabold uppercase tracking-wide text-sage">${t.c} • ${t.h}</p>
+        <p class="text-sm font-bold mt-0.5">${t.t}</p></div>
+        <button data-fav="${t.t}" class="text-lg ${fav?"text-amber-400":"text-slate-300"}"><i class="fa-solid fa-star"></i></button>
+      </div>
+      <p class="text-xs text-graphite dark:text-slate-300 mt-2 leading-relaxed">${t.d}</p>
+      <p class="text-[10px] font-bold mt-2 ${read?"text-sage":"text-graphite/60 dark:text-slate-400"}">${read?"✓ Lida":"Tocar para marcar como lida"}</p>
+    </div>`}).join(""):`<p class="text-xs text-graphite dark:text-slate-400">Nada encontrado.</p>`;
+  tipList.querySelectorAll("[data-fav]").forEach(b=>b.onclick=e=>{e.stopPropagation();
+    const t=b.dataset.fav;S.favs.includes(t)?S.favs.splice(S.favs.indexOf(t),1):S.favs.push(t);save();renderTips();});
+  tipList.querySelectorAll("[data-tip]").forEach(c=>c.onclick=()=>{
+    const t=c.dataset.tip;S.read.includes(t)?S.read.splice(S.read.indexOf(t),1):S.read.push(t);save();renderTips();renderProgress();});
+}
+search.oninput=renderTips;
+tipFilters.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{
+  tipFilter=b.dataset.f;
+  tipFilters.querySelectorAll(".chip").forEach(x=>x.className="chip whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 shadow");
+  b.className="chip whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-full bg-sage text-white shadow";
+  renderTips();});
+
+/* ---------------- FERRAMENTAS ---------------- */
+calcBtn.onclick=()=>{
+  const ns=[n1,n2,n3,n4].map(i=>parseFloat(i.value)).filter(v=>!isNaN(v));
+  if(!ns.length){calcOut.className="mt-2 text-sm font-bold text-red-500";calcOut.textContent="Informe ao menos uma nota.";return;}
+  const m=ns.reduce((a,b)=>a+b,0)/ns.length;
+  const p=parseFloat(pres.value),tt=parseFloat(tot.value);
+  let f=(!isNaN(p)&&tt>0)?(p/tt*100):null;
+  calcOut.className="mt-2 text-sm font-bold text-navy dark:text-mint";
+  calcOut.innerHTML=`Média: <span class="${m>=6?"text-sage":"text-red-500"}">${m.toFixed(1)}</span> (${m>=6?"aprovado":"em recuperação"})`+
+    (f!==null?` • Frequência: <span class="${f>=75?"text-sage":"text-red-500"}">${f.toFixed(1)}%</span> (${f>=75?"regular":"abaixo do mínimo"})`:"");
+};
+planBtn.onclick=()=>{
+  const c=pComp.value||"Componente",t=pTema.value||"Tema da aula",tu=pTurma.value||"Turma";
+  planOut.textContent=
+`PLANO DE AULA — ${c}
+Turma: ${tu}   |   Tema: ${t}
+Duração: 50 min
+
+1. OBJETIVO
+   Compreender ${t.toLowerCase()} e aplicar em situações do cotidiano.
+
+2. HABILIDADE BNCC
+   Relacionar o tema às competências gerais 2 (pensamento científico) e 4 (comunicação).
+
+3. ACOLHIDA (5 min)
+   Pergunta disparadora sobre ${t.toLowerCase()}.
+
+4. DESENVOLVIMENTO (30 min)
+   • Exposição dialogada com registro no quadro
+   • Atividade em duplas / trios
+   • Uso opcional dos Chromebooks ou Sala de Vídeo
+
+5. SISTEMATIZAÇÃO (10 min)
+   Socialização das respostas e correção coletiva.
+
+6. AVALIAÇÃO (5 min)
+   Bilhete de saída: uma frase sobre o que aprendeu.
+
+7. RECURSOS
+   Quadro, caderno, folha de atividade, projetor.`;
+  planOut.classList.remove("hidden");copyPlan.classList.remove("hidden");
+};
+copyPlan.onclick=()=>{navigator.clipboard.writeText(planOut.textContent);copyPlan.textContent="Copiado!";setTimeout(()=>copyPlan.textContent="Copiar plano",1500);};
+
+resetBtn.onclick=()=>{if(confirm("Apagar todos os dados salvos neste aparelho?")){localStorage.removeItem(KEY);location.reload();}};
+
+/* ---------------- PWA ---------------- */
+let deferred;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;installBtn.classList.remove("hidden");});
+installBtn.onclick=async()=>{if(deferred){deferred.prompt();await deferred.userChoice;installBtn.classList.add("hidden");}};
+(function(){
+  const h=location.hostname, inFrame=window.self!==window.top;
+  const blocked=inFrame||location.protocol!=="https:"||/^(id-)?preview--/.test(h)||/lovableproject(-dev)?\.com$/.test(h)||/beta\.lovable\.dev$/.test(h)||location.search.includes("sw=off");
+  if(!("serviceWorker" in navigator))return;
+  if(blocked){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>{if(r.active&&r.active.scriptURL.includes("/app/sw.js"))r.unregister();}));return;}
+  navigator.serviceWorker.register("/app/sw.js",{scope:"/app/"}).catch(()=>{});
+})();
+
+/* ---------------- INIT ---------------- */
+applyTheme();renderHome();renderGrade();renderBooks();renderTips();go("tab1");
+tipFilters.querySelector(".chip").className="chip whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-full bg-sage text-white shadow";
+aData.value=new Date().toISOString().slice(0,10);
+</script>
+</body>
+</html>
