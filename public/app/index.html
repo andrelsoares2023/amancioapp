@@ -686,6 +686,9 @@ $('#resetBtn').onclick=()=>{if(confirm('Apagar todos os agendamentos, planos e f
 opts($('#bkDia'),DIAS); opts($('#bkProf'),ALL_PROFS); opts($('#bkComp'),COMPONENTES); opts($('#bkTurma'),TURMAS); opts($('#bkAula'),AULAS);
 opts($('#fTurno'),Object.keys(HOR)); opts($('#fProf'),ALL_PROFS,'Todos os professores');
 opts($('#plTipo'),TIPOS); opts($('#plAno'),ANOS); opts($('#plComp'),COMPONENTES);
+opts($('#plProf'),ALL_PROFS); opts($('#plTurma'),TURMAS);
+$('#profList').innerHTML=PROF_INDEX.map(p=>`<option value="${p.nome}"></option>`).join('');
+$('#qPlan').oninput=renderPlanSearch;
 $('#bkData').value=new Date().toISOString().slice(0,10);
 $('#fTurno').onchange=renderGrade; $('#fProf').onchange=renderGrade;
 $('#plComp').onchange=fillHabs; $('#plAno').onchange=fillHabs;
