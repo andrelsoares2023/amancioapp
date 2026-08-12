@@ -1,10 +1,12 @@
-const CACHE = "educato-2026-v1";
+const CACHE = "educato-2026-v2";
 const ASSETS = [
   "/app/index.html",
   "/app/manifest.webmanifest",
+  "/app/hero.jpg",
   "/app/icon-192.png",
   "/app/icon-512.png",
 ];
+
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
