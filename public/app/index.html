@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>EducaTO • Painel Pedagógico 2026</title>
+<title>EducaTO • Calendário e Gestão Escolar 2026</title>
 <meta name="description" content="PWA educacional offline: agendamentos, quadro de horários, calendário letivo 2026 SEDUC-TO, planos de aula BNCC e calculadoras pedagógicas." />
 <meta name="theme-color" content="#0d9488" />
 <link rel="manifest" href="/app/manifest.webmanifest" />
@@ -115,93 +115,54 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
   <div id="gradeList" class="space-y-3"></div>
 </section>
 
-<!-- ================= TAB 4 : CALENDÁRIO & PEDAGÓGICO ================= -->
+<!-- ================= TAB 4 : CALENDÁRIO LETIVO 2026 ================= -->
 <section id="tab4" class="tabpane hidden space-y-4">
-  <div class="grid grid-cols-3 gap-2" id="pedTabs"></div>
+  <div class="rounded-2xl p-4 bg-gradient-to-br from-navy to-graphite text-white shadow">
+    <p class="text-[11px] uppercase tracking-widest opacity-80">Calendário Escolar 2026 • Regular e EJA • SEDUC-TO</p>
+    <p class="mt-1 text-sm font-extrabold">02/02/2026 → 18/12/2026 • 200 dias letivos</p>
+    <div class="mt-3 h-2 rounded-full bg-white/20 overflow-hidden"><div id="yearBar" class="h-full bg-sage"></div></div>
+    <p id="yearInfo" class="mt-2 text-[11px] opacity-90"></p>
+  </div>
 
-  <!-- calendário -->
-  <div id="ped-cal" class="space-y-3">
-    <div class="rounded-2xl p-4 bg-gradient-to-br from-navy to-graphite text-white shadow">
-      <p class="text-[11px] uppercase tracking-widest opacity-80">Ano letivo 2026 • SEDUC-TO</p>
-      <p class="mt-1 text-sm font-extrabold">02/02/2026 → 18/12/2026 • 200 dias letivos</p>
-      <div class="mt-3 h-2 rounded-full bg-white/20 overflow-hidden"><div id="yearBar" class="h-full bg-sage"></div></div>
-      <p id="yearInfo" class="mt-2 text-[11px] opacity-90"></p>
+  <div class="grid grid-cols-2 gap-2" id="calViewTabs"></div>
+
+  <!-- VISÃO: MESES -->
+  <div id="cal-mes" class="space-y-3">
+    <div class="rounded-2xl p-3 bg-white dark:bg-slate-800 shadow flex items-center justify-between gap-2">
+      <button id="mPrev" class="w-9 h-9 rounded-xl bg-mint dark:bg-slate-700 text-sagedark dark:text-mint"><i class="fa-solid fa-chevron-left"></i></button>
+      <p id="mLabel" class="text-sm font-extrabold"></p>
+      <button id="mNext" class="w-9 h-9 rounded-xl bg-mint dark:bg-slate-700 text-sagedark dark:text-mint"><i class="fa-solid fa-chevron-right"></i></button>
     </div>
+    <div id="calGrid" class="rounded-2xl p-3 bg-white dark:bg-slate-800 shadow"></div>
+    <div id="calLegend" class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow"></div>
+    <div id="monthEvents" class="space-y-2"></div>
+  </div>
+
+  <!-- VISÃO: DATAS-CHAVE -->
+  <div id="cal-lista" class="hidden space-y-3">
     <div class="flex gap-2 overflow-x-auto pb-1" id="calFilters"></div>
     <div id="calList" class="space-y-2"></div>
   </div>
 
-  <!-- gerador de planos -->
-  <div id="ped-plan" class="hidden space-y-3">
-    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-2">
-      <h3 class="text-sm font-extrabold"><i class="fa-solid fa-user-magnifying-glass mr-1 text-sage"></i> Busca para planejamento</h3>
-      <p class="text-[11px] text-graphite dark:text-slate-400">Pesquise por professor(a), componente, turma ou assunto e veja as habilidades e competências a desenvolver.</p>
-      <input id="qPlan" list="profList" class="fld" placeholder="Ex.: Cleide, Matemática, 72.01, frações..." />
-      <datalist id="profList"></datalist>
-      <div class="flex gap-2 overflow-x-auto pb-1" id="qPlanTurmas"></div>
-      <div id="planSearchOut" class="space-y-2 max-h-[28rem] overflow-y-auto"></div>
+  <!-- VISÃO: BIMESTRES -->
+  <div id="cal-bim" class="hidden space-y-3">
+    <div id="bimList" class="space-y-2"></div>
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
+      <h3 class="text-sm font-extrabold"><i class="fa-solid fa-calendar-check mr-1 text-sage"></i> Dias letivos por mês (1º semestre)</h3>
+      <div id="diasLetivos" class="mt-2 flex flex-wrap gap-2"></div>
     </div>
-    <form id="planForm" class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-3">
-
-      <div class="grid grid-cols-2 gap-2">
-        <div><label class="text-[11px] font-bold">Tipo de plano</label><select id="plTipo" class="fld mt-1"></select></div>
-        <div><label class="text-[11px] font-bold">Ano</label><select id="plAno" class="fld mt-1"></select></div>
-      </div>
-      <div class="grid grid-cols-2 gap-2">
-        <div><label class="text-[11px] font-bold">Professor(a)</label><select id="plProf" class="fld mt-1"></select></div>
-        <div><label class="text-[11px] font-bold">Turma</label><select id="plTurma" class="fld mt-1"></select></div>
-      </div>
-      <div><label class="text-[11px] font-bold">Componente curricular</label><select id="plComp" class="fld mt-1"></select></div>
-
-      <div><label class="text-[11px] font-bold">Habilidade BNCC</label><select id="plHab" class="fld mt-1"></select></div>
-      <div><label class="text-[11px] font-bold">Objetivo / Tema</label><input id="plTema" class="fld mt-1" placeholder="Tema da aula" required /></div>
-      <div><label class="text-[11px] font-bold">Metodologia</label><textarea id="plMet" rows="2" class="fld mt-1" placeholder="Aula dialogada, trabalho em grupo..."></textarea></div>
-      <div><label class="text-[11px] font-bold">Recursos</label><textarea id="plRec" rows="2" class="fld mt-1" placeholder="Chromebooks, laboratório, quadro..."></textarea></div>
-      <div><label class="text-[11px] font-bold">Avaliação</label><textarea id="plAva" rows="2" class="fld mt-1" placeholder="Participação, produção escrita..."></textarea></div>
-      <button class="w-full bg-sage text-white font-extrabold rounded-xl py-3 active:scale-95 transition"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Gerar plano</button>
-    </form>
-    <div id="planOut" class="hidden rounded-2xl p-4 bg-white dark:bg-slate-800 shadow text-sm"></div>
-    <div id="planActions" class="hidden grid grid-cols-2 gap-2 noprint">
-      <button id="printPlan" class="rounded-xl py-2.5 bg-navy text-white text-xs font-bold active:scale-95"><i class="fa-solid fa-print mr-1"></i> Imprimir / PDF</button>
-      <button id="exportPlan" class="rounded-xl py-2.5 bg-sagedark text-white text-xs font-bold active:scale-95"><i class="fa-solid fa-download mr-1"></i> Exportar .txt</button>
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
+      <h3 class="text-sm font-extrabold"><i class="fa-solid fa-calendar-week mr-1 text-sage"></i> Sábados letivos</h3>
+      <div id="sabados" class="mt-2 flex flex-wrap gap-2"></div>
     </div>
-    <div><h3 class="text-sm font-extrabold mb-2"><i class="fa-solid fa-folder-open mr-1 text-sage"></i> Planos salvos</h3><div id="planList" class="space-y-2"></div></div>
   </div>
 
-  <!-- ferramentas -->
-  <div id="ped-tools" class="hidden space-y-3">
-    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-2">
-      <h3 class="text-sm font-extrabold"><i class="fa-solid fa-calculator mr-1 text-sage"></i> Média bimestral ponderada</h3>
-      <div class="grid grid-cols-2 gap-2">
-        <input id="n1" type="number" step="0.1" class="fld" placeholder="Nota 1" /><input id="p1" type="number" step="0.1" class="fld" placeholder="Peso 1" value="1" />
-        <input id="n2" type="number" step="0.1" class="fld" placeholder="Nota 2" /><input id="p2" type="number" step="0.1" class="fld" placeholder="Peso 2" value="2" />
-        <input id="n3" type="number" step="0.1" class="fld" placeholder="Nota 3" /><input id="p3" type="number" step="0.1" class="fld" placeholder="Peso 3" value="3" />
-      </div>
-      <button id="calcMedia" class="w-full bg-sage text-white font-bold rounded-xl py-2.5 text-sm active:scale-95">Calcular média</button>
-      <p id="mediaOut" class="text-sm font-extrabold text-center"></p>
-    </div>
-
-    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-2">
-      <h3 class="text-sm font-extrabold"><i class="fa-solid fa-user-check mr-1 text-sage"></i> Frequência do aluno</h3>
-      <div class="grid grid-cols-2 gap-2">
-        <input id="fTotal" type="number" class="fld" placeholder="Aulas dadas" />
-        <input id="fFaltas" type="number" class="fld" placeholder="Faltas" />
-      </div>
-      <button id="calcFreq" class="w-full bg-sage text-white font-bold rounded-xl py-2.5 text-sm active:scale-95">Calcular frequência</button>
-      <p id="freqOut" class="text-sm font-extrabold text-center"></p>
-    </div>
-
-    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-2">
-      <h3 class="text-sm font-extrabold"><i class="fa-solid fa-magnifying-glass mr-1 text-sage"></i> Busca global BNCC & dicas</h3>
-      <input id="qBncc" class="fld" placeholder="Ex.: EF07MA, frações, células, mapas..." />
-      <div class="flex gap-2 text-[11px] font-bold">
-        <button data-favf="all" class="favf px-3 py-1.5 rounded-full bg-sage text-white">Tudo</button>
-        <button data-favf="fav" class="favf px-3 py-1.5 rounded-full bg-mint dark:bg-slate-700 text-sagedark dark:text-mint">Favoritos</button>
-      </div>
-      <div id="bnccList" class="space-y-2 max-h-96 overflow-y-auto"></div>
-    </div>
+  <!-- VISÃO: OBSERVAÇÕES -->
+  <div id="cal-obs" class="hidden space-y-2">
+    <div id="obsList" class="space-y-2"></div>
   </div>
 </section>
+
 
 <!-- ================= TAB 5 : GUIA & CONFIG ================= -->
 <section id="tab5" class="tabpane hidden space-y-4">
@@ -247,7 +208,7 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
     <button data-go="tab1" class="navb py-2.5 flex flex-col items-center gap-1 text-[10px] font-bold"><i class="fa-solid fa-house text-lg"></i>Início</button>
     <button data-go="tab2" class="navb py-2.5 flex flex-col items-center gap-1 text-[10px] font-bold"><i class="fa-solid fa-calendar-check text-lg"></i>Agendar</button>
     <button data-go="tab3" class="navb py-2.5 flex flex-col items-center gap-1 text-[10px] font-bold"><i class="fa-solid fa-table-list text-lg"></i>Horários</button>
-    <button data-go="tab4" class="navb py-2.5 flex flex-col items-center gap-1 text-[10px] font-bold"><i class="fa-solid fa-graduation-cap text-lg"></i>Pedagógico</button>
+    <button data-go="tab4" class="navb py-2.5 flex flex-col items-center gap-1 text-[10px] font-bold"><i class="fa-solid fa-calendar-days text-lg"></i>Calendário</button>
     <button data-go="tab5" class="navb py-2.5 flex flex-col items-center gap-1 text-[10px] font-bold"><i class="fa-solid fa-gear text-lg"></i>Guia</button>
   </div>
 </nav>
@@ -279,97 +240,98 @@ const ALL_PROFS=[...new Set([...PROFS_M,...PROFS_V].map(p=>p[0]).concat(['Fernan
 
 const ESPACOS=[{k:'video',n:'Sala de Vídeo',i:'fa-film'},{k:'chrome',n:'Chromebooks',i:'fa-laptop'},{k:'lab',n:'Lab. de Ciências',i:'fa-flask'}];
 
+/* ---- CALENDÁRIO ESCOLAR 2026 • REGULAR E EJA (SEDUC-TO / UNDIME) ---- */
+const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const CATS={
+  letivo:{n:'Marcos do ano letivo',i:'fa-flag',cls:'bg-sage text-white'},
+  bim:{n:'Bimestres',i:'fa-layer-group',cls:'bg-sagedark text-white'},
+  sabado:{n:'Sábado letivo',i:'fa-calendar-week',cls:'bg-teal-300 text-navy'},
+  feriado:{n:'Feriado / Recesso',i:'fa-umbrella-beach',cls:'bg-red-400 text-white'},
+  ferias:{n:'Férias escolares',i:'fa-sun',cls:'bg-amber-300 text-navy'},
+  rec:{n:'Recuperação final',i:'fa-rotate-right',cls:'bg-indigo-400 text-white'},
+  gestao:{n:'Gestão / Censo / PPP',i:'fa-clipboard-check',cls:'bg-navy text-white'},
+  comem:{n:'Datas comemorativas',i:'fa-star',cls:'bg-mint text-sagedark'}
+};
 const CAL=[
-  {k:'marco',d:'02/02',t:'Início do ano letivo 2026',i:'fa-flag'},
-  {k:'bim',d:'02/02 – 30/04',t:'1º Bimestre',i:'fa-1'},
-  {k:'saeto',d:'09 – 13/03',t:'SAETO • Avaliação Diagnóstica',i:'fa-clipboard-check'},
-  {k:'marco',d:'03/04',t:'Sexta-feira Santa (feriado)',i:'fa-cross'},
-  {k:'marco',d:'21/04',t:'Tiradentes (feriado)',i:'fa-calendar-day'},
-  {k:'bim',d:'04/05 – 10/07',t:'2º Bimestre',i:'fa-2'},
-  {k:'marco',d:'01/05',t:'Dia do Trabalhador (feriado)',i:'fa-calendar-day'},
-  {k:'recesso',d:'13 – 31/07',t:'Recesso escolar de julho',i:'fa-umbrella-beach'},
-  {k:'bim',d:'03/08 – 09/10',t:'3º Bimestre',i:'fa-3'},
-  {k:'saeto',d:'17 – 20/08',t:'SAETO • Avaliação Processual',i:'fa-clipboard-list'},
-  {k:'marco',d:'07/09',t:'Independência do Brasil (feriado)',i:'fa-flag-usa'},
-  {k:'marco',d:'12/10',t:'Nossa Senhora Aparecida (feriado)',i:'fa-church'},
-  {k:'bim',d:'13/10 – 18/12',t:'4º Bimestre',i:'fa-4'},
-  {k:'marco',d:'05/10',t:'Criação do Estado do Tocantins',i:'fa-star'},
-  {k:'saeto',d:'16 – 27/11',t:'SAETO • Avaliação Final',i:'fa-clipboard-question'},
-  {k:'marco',d:'18/12',t:'Encerramento do ano letivo (200 dias)',i:'fa-flag-checkered'}
+  {k:'letivo',dias:['02/02'],t:'Início do ano letivo 2026',i:'fa-flag'},
+  {k:'letivo',dias:['18/12'],t:'Término do ano letivo 2026',i:'fa-flag-checkered'},
+  {k:'bim',dias:['02/02'],t:'Início do 1º bimestre (47 dias letivos)'},
+  {k:'bim',dias:['11/04'],t:'Fechamento do 1º bimestre'},
+  {k:'bim',dias:['13/04'],t:'Início do 2º bimestre (53 dias letivos)'},
+  {k:'bim',dias:['30/06'],t:'Fechamento do 2º bimestre'},
+  {k:'bim',dias:['03/08'],t:'Início do 3º bimestre (53 dias letivos)'},
+  {k:'bim',dias:['14/10'],t:'Fechamento do 3º bimestre'},
+  {k:'bim',dias:['19/10'],t:'Início do 4º bimestre (47 dias letivos)'},
+  {k:'bim',dias:['18/12'],t:'Fechamento do 4º bimestre'},
+  {k:'sabado',dias:['07/02','11/04','09/05'],t:'Sábados letivos — 1º semestre'},
+  {k:'sabado',dias:['08/08','29/08','12/09','19/09','31/10','14/11','28/11','05/12'],t:'Sábados letivos — 2º semestre'},
+  {k:'feriado',dias:['01/01'],t:'Confraternização Universal'},
+  {k:'feriado',dias:['17/02'],t:'Carnaval'},
+  {k:'feriado',dias:['03/04'],t:'Paixão de Cristo'},
+  {k:'feriado',dias:['05/04'],t:'Páscoa'},
+  {k:'feriado',dias:['21/04'],t:'Tiradentes'},
+  {k:'feriado',dias:['01/05'],t:'Dia do Trabalho'},
+  {k:'feriado',dias:['04/06'],t:'Corpus Christi'},
+  {k:'feriado',dias:['15/08'],t:'Senhor do Bonfim'},
+  {k:'feriado',dias:['07/09'],t:'Independência do Brasil'},
+  {k:'feriado',dias:['08/09'],t:'Padroeira do Estado do Tocantins'},
+  {k:'feriado',dias:['05/10'],t:'Criação do Estado do Tocantins'},
+  {k:'feriado',dias:['12/10'],t:'Padroeira do Brasil'},
+  {k:'feriado',dias:['02/11'],t:'Finados'},
+  {k:'feriado',dias:['15/11'],t:'Proclamação da República'},
+  {k:'feriado',dias:['20/11'],t:'Dia Nacional de Zumbi e da Consciência Negra'},
+  {k:'feriado',dias:['25/12'],t:'Natal'},
+  {k:'ferias',dias:['06/07','07/07','08/07','09/07','10/07','13/07','14/07','15/07','16/07','17/07','20/07','21/07','22/07','23/07','24/07','27/07','28/07','29/07','30/07','31/07'],t:'Férias escolares de julho',label:'06/07 a 31/07'},
+  {k:'rec',dias:['01/07','02/07','03/07'],t:'Recuperação final — turmas semestrais (EJA / Correção de Fluxo), 1º semestre'},
+  {k:'rec',dias:['19/12','21/12','22/12'],t:'Recuperação final — turmas anuais e semestrais, 2º semestre'},
+  {k:'gestao',dias:['27/05'],t:'Início do Censo Escolar'},
+  {k:'comem',dias:['22/02'],t:'Dia do Higienizador de Ambiente Escolar'},
+  {k:'comem',dias:['27/02'],t:'Dia Nacional do Livro Didático'},
+  {k:'comem',dias:['18/03'],t:'Autonomia do Estado do Tocantins'},
+  {k:'comem',dias:['19/04'],t:'Dia dos Povos Indígenas'},
+  {k:'comem',dias:['10/05'],t:'Dia da Família na Escola'},
+  {k:'comem',dias:['15/05'],t:'Dia do Assistente Social'},
+  {k:'comem',dias:['09/08'],t:'Dia da Família na Escola'},
+  {k:'comem',dias:['11/08'],t:'Dia do Estudante'},
+  {k:'comem',dias:['22/08'],t:'Dia do Coordenador Pedagógico'},
+  {k:'comem',dias:['27/08'],t:'Dia do Psicólogo'},
+  {k:'comem',dias:['09/09'],t:'Dia do Coordenador Financeiro'},
+  {k:'comem',dias:['23/09'],t:'Dia Estadual da Educação Profissional e Tecnológica'},
+  {k:'comem',dias:['30/09'],t:'Dia da(o) Secretária(o)-Geral e Aux. Administrativo'},
+  {k:'comem',dias:['12/10'],t:'Dia das Crianças'},
+  {k:'comem',dias:['15/10'],t:'Dia do Professor'},
+  {k:'comem',dias:['19/10'],t:'Dia do Aux. de Monitoramento do Patrimônio Escolar e Meio Ambiente'},
+  {k:'comem',dias:['30/10'],t:'Dia do Manipulador de Alimentos'},
+  {k:'comem',dias:['12/11'],t:'Dia do Diretor Escolar'},
+  {k:'comem',dias:['04/12'],t:'Dia do Orientador Educacional'}
 ];
-const CALK=[['all','Tudo'],['bim','Bimestres'],['saeto','SAETO'],['recesso','Recesso'],['marco','Marcos']];
+const BIMESTRES=[
+  {n:'1º Bimestre',ini:'02/02/2026',fim:'11/04/2026',dias:47},
+  {n:'2º Bimestre',ini:'13/04/2026',fim:'30/06/2026',dias:53},
+  {n:'3º Bimestre',ini:'03/08/2026',fim:'14/10/2026',dias:53},
+  {n:'4º Bimestre',ini:'19/10/2026',fim:'18/12/2026',dias:47}
+];
+const DIAS_LETIVOS=[['Fevereiro',18],['Março',22],['Abril',19],['Maio',21],['Junho',20]];
+const SABADOS=['07/02','11/04','09/05','08/08','29/08','12/09','19/09','31/10','14/11','28/11','05/12'];
+const OBS=[
+  'Início do ano letivo: 02/02/26 e término do ano letivo: 18/12/26 — 200 dias letivos (100 por semestre).',
+  'Os feriados municipais que comprometerem os 200 dias letivos deverão ser repostos.',
+  'Calendário com Conselho de Classe Pedagógico letivo, condicionado à organização das atividades pedagógicas e participação dos estudantes.',
+  'Início dos bimestres: 1º 02/02; 2º 13/04; 3º 03/08 e 4º 19/10.',
+  'Fechamento dos bimestres do Ensino Regular: 1º 11/04; 2º 30/06; 3º 14/10 e 4º 18/12.',
+  'Turmas com organização semestral (EJA, Correção de Fluxo e outros): recuperação final em 01/07, 02/07 e 03/07 (1º semestre) e 19/12, 21/12 e 22/12 (2º semestre).',
+  'Turmas com organização anual: recuperação final em 19/12, 21/12 e 22/12.',
+  'A recuperação final (artigos 170 e seguintes do Regimento Escolar) será elaborada com os descritores de correção pelo professor e aplicada e corrigida na data prevista, pela equipe administrativa.',
+  'Os sábados letivos deverão ser utilizados para simulados, projetos de leitura, projetos das áreas de conhecimento e ações de culminância previstos no PPP.',
+  'Os dias de pontos facultativos não são considerados para as instituições escolares, que devem seguir criteriosamente o calendário letivo.',
+  'Início do Censo Escolar: 27/05/2026.',
+  'Os dias de formação da Rede Municipal devem ser ajustados para oportunizar a formação, mantendo o calendário na íntegra para as demais turmas.',
+  'Qualquer alteração no calendário está condicionada à análise e parecer da Superintendência Regional de Educação, considerando transporte escolar e harmonização do atendimento nas redes estadual e municipal.',
+  'Unidades com atividades híbridas (NP — Não Presenciais) devem elaborar Plano de Atividade, acompanhamento e avaliação docente, com comprovação de execução, critérios avaliativos e equivalência de carga horária.',
+  'O período das avaliações do SAETO poderá ser alterado em razão da logística de aplicação, sem interferência nos dias letivos.',
+  'Compõem este calendário as diretrizes da Portaria Conjunta Seduc/Undime/Sistemas Municipais.'
+];
 
-/* ---- BNCC (habilidades + dicas práticas) ---- */
-const BNCC=[
- // Matemática
- ['Matemática','6º','EF06MA01','Comparar, ordenar e efetuar operações com números naturais e sistemas de numeração.'],
- ['Matemática','6º','EF06MA07','Compreender, comparar e ordenar frações associadas a diferentes significados.'],
- ['Matemática','6º','EF06MA13','Resolver problemas que envolvam porcentagens e proporcionalidade.'],
- ['Matemática','7º','EF07MA04','Resolver problemas com números inteiros e suas operações.'],
- ['Matemática','7º','EF07MA13','Compreender equações polinomiais do 1º grau e resolvê-las.'],
- ['Matemática','7º','EF07MA24','Interpretar e analisar gráficos e tabelas de pesquisas estatísticas.'],
- ['Matemática','8º','EF08MA06','Resolver problemas com sistemas de equações do 1º grau com duas incógnitas.'],
- ['Matemática','8º','EF08MA15','Construir e classificar quadriláteros com régua e compasso.'],
- ['Matemática','9º','EF09MA09','Compreender radiciação e suas propriedades.'],
- ['Matemática','9º','EF09MA14','Resolver problemas de semelhança de triângulos.'],
- ['Matemática','9º','EF09MA24','Planejar e executar pesquisa amostral e comunicar resultados.'],
- // Ciências
- ['Ciências','6º','EF06CI01','Classificar materiais em função de suas propriedades e usos.'],
- ['Ciências','6º','EF06CI05','Explicar a organização básica das células e seu papel nos seres vivos.'],
- ['Ciências','6º','EF06CI11','Identificar os movimentos da Terra e suas consequências.'],
- ['Ciências','7º','EF07CI06','Discutir o uso de diferentes fontes de energia e seus impactos.'],
- ['Ciências','7º','EF07CI08','Avaliar como os organismos interagem com o ambiente e o equilíbrio ecológico.'],
- ['Ciências','8º','EF08CI01','Identificar e classificar diferentes fontes e tipos de energia.'],
- ['Ciências','8º','EF08CI07','Comparar métodos contraceptivos e discutir saúde sexual e reprodutiva.'],
- ['Ciências','9º','EF09CI04','Planejar e executar experimentos com transformações químicas.'],
- ['Ciências','9º','EF09CI14','Descrever a composição e a estrutura do Universo e do Sistema Solar.'],
- // Língua Portuguesa
- ['Português','6º','EF67LP03','Comparar informações sobre um mesmo fato em diferentes fontes e mídias.'],
- ['Português','6º','EF06LP01','Reconhecer a impossibilidade de neutralidade absoluta em textos jornalísticos.'],
- ['Português','7º','EF07LP04','Reconhecer estrutura e função de textos argumentativos.'],
- ['Português','8º','EF89LP04','Identificar e avaliar teses e argumentos em artigos de opinião.'],
- ['Português','9º','EF09LP04','Analisar recursos de persuasão em textos publicitários e midiáticos.'],
- // História
- ['História','6º','EF06HI01','Identificar diferentes formas de compreensão da noção de tempo.'],
- ['História','6º','EF06HI14','Identificar e analisar formas de organização social e política na Roma Antiga.'],
- ['História','7º','EF07HI03','Identificar aspectos e processos específicos das sociedades africanas e americanas.'],
- ['História','7º','EF07HI11','Analisar a formação histórico-geográfica do território da América portuguesa.'],
- ['História','8º','EF08HI01','Explicar o significado de “modernidade” e suas lógicas de inclusão e exclusão.'],
- ['História','8º','EF08HI02','Caracterizar e comparar as dinâmicas de abastecimento e mercantilismo.'],
- ['História','9º','EF09HI03','Identificar os mecanismos de inserção dos negros na sociedade brasileira pós-abolição.'],
- // Geografia
- ['Geografia','6º','EF06GE02','Analisar modificações de paisagens por diferentes tipos de sociedade.'],
- ['Geografia','7º','EF07GE04','Analisar a distribuição territorial da população brasileira.'],
- ['Geografia','8º','EF08GE07','Analisar os impactos socioambientais da urbanização na América Latina.'],
- ['Geografia','9º','EF09GE10','Analisar os impactos da globalização nas relações de trabalho.'],
- // Ed. Física
- ['Ed. Física','6º','EF67EF01','Experimentar e fruir esportes de marca, precisão, invasão e técnico-combinatórios.'],
- ['Ed. Física','8º','EF89EF07','Experimentar e fruir danças de salão valorizando a diversidade cultural.'],
- // Artes
- ['Artes','6º','EF69AR01','Pesquisar e analisar diferentes estilos visuais em produções artísticas.'],
- ['Artes','8º','EF69AR16','Analisar criticamente produções musicais de diferentes matrizes culturais.'],
- // Ensino Religioso
- ['Ensino Religioso','6º','EF06ER01','Reconhecer o papel da tradição escrita na preservação de memórias e valores.'],
- ['Ensino Religioso','9º','EF09ER04','Debater sobre as principais crenças e convicções acerca da vida e da morte.'],
- // Inglês/Libras
- ['Inglês/Libras','6º','EF06LI01','Interagir em situações de intercâmbio oral para realizar atividades em sala.'],
- ['Inglês/Libras','8º','EF08LI06','Apreciar textos narrativos em língua inglesa e identificar seu tema.'],
- // Computação
- ['Computação','6º','EF06CO01','Reconhecer dados e informações e como são representados digitalmente.'],
- ['Computação','6º','EF06CO03','Construir algoritmos simples com sequência, repetição e decisão.'],
- ['Computação','7º','EF07CO02','Desenvolver programas em ambiente de blocos resolvendo problemas do cotidiano.'],
- ['Computação','7º','EF07CO04','Discutir segurança e privacidade de dados na internet.'],
- ['Computação','8º','EF08CO03','Aplicar decomposição e abstração na resolução computacional de problemas.'],
- ['Computação','9º','EF09CO02','Criar soluções digitais autorais com impacto social na comunidade escolar.'],
- ['Computação','9º','EF09CO05','Avaliar o impacto ético das tecnologias digitais e da inteligência artificial.'],
- // Letramento
- ['Letramento','6º','LET06LP','Fluência leitora: leitura em voz alta, inferência e resumo de textos curtos.'],
- ['Letramento','7º','LET07MA','Recomposição matemática: operações básicas aplicadas a situações-problema.'],
- ['Letramento','8º','LET08LP','Produção textual guiada com revisão coletiva e reescrita.'],
- ['Letramento','9º','LET09MA','Raciocínio proporcional e leitura de gráficos em contextos reais.']
-];
-const ANOS=['6º','7º','8º','9º'];
-const TIPOS=['Diário','Mensal','Bimestral','Semestral'];
 const QUOTES=['Ensinar não é transferir conhecimento, mas criar as possibilidades para sua produção. — Paulo Freire',
 'Cada aula planejada é uma ponte construída para o futuro de um estudante.',
 'A escola que acolhe é a escola que aprende junto.',
@@ -392,7 +354,7 @@ const toggleTheme=()=>{DB.theme=DB.theme==='dark'?'light':'dark';save();applyThe
 $('#themeBtn').onclick=toggleTheme; $('#themeSwitch').onclick=toggleTheme;
 
 /* ============ NAVEGAÇÃO ============ */
-const TITLES={tab1:'Bem-vindo(a)',tab2:'Agendamentos',tab3:'Quadro de Horários',tab4:'Calendário & Pedagógico',tab5:'Guia & Configurações'};
+const TITLES={tab1:'Bem-vindo(a)',tab2:'Agendamentos',tab3:'Quadro de Horários',tab4:'Calendário Letivo 2026',tab5:'Guia & Configurações'};
 function go(id){
   $$('.tabpane').forEach(s=>s.classList.toggle('hidden',s.id!==id));
   $('#pageTitle').textContent=TITLES[id];
@@ -408,11 +370,10 @@ function setQuote(){$('#quote').textContent=QUOTES[Math.floor(Math.random()*QUOT
 $('#newQuote').onclick=setQuote;
 
 function renderProgress(){
-  const total=5+3+1+3;
+  const total=5+3+1;
   const done=DB.visited.length
     +Math.min(3,Object.values(DB.books).filter(a=>a.length).length)
-    +(DB.plans.length?1:0)
-    +Math.min(3,DB.favs.length);
+    +(DB.visited.includes('tab4')?1:0);
   const p=Math.min(100,Math.round(done/total*100));
   $('#progBar').style.width=p+'%'; $('#progLabel').textContent=p+'%';
 }
@@ -494,187 +455,76 @@ function renderGrade(){
   $('#gradeList').innerHTML=html;
 }
 
-/* ============ TAB 4 ============ */
-let pedView='cal', calFilter='all', favFilter='all';
-function renderPedTabs(){
-  const t=[['cal','Calendário','fa-calendar-days'],['plan','Planos de Aula','fa-file-pen'],['tools','Ferramentas','fa-toolbox']];
-  $('#pedTabs').innerHTML=t.map(([k,n,i])=>`<button data-ped="${k}" class="rounded-2xl py-3 text-[11px] font-extrabold shadow ${pedView===k?'bg-sage text-white':'bg-white dark:bg-slate-800'}"><i class="fa-solid ${i} block text-base mb-1"></i>${n}</button>`).join('');
-  $$('#pedTabs [data-ped]').forEach(b=>b.onclick=()=>{pedView=b.dataset.ped;renderPedTabs();});
-  ['cal','plan','tools'].forEach(k=>$('#ped-'+k).classList.toggle('hidden',pedView!==k));
+/* ============ TAB 4 • CALENDÁRIO LETIVO 2026 ============ */
+let calView='mes', calFilter='all', calMes=new Date().getFullYear()===2026?new Date().getMonth():1;
+
+function renderCalViewTabs(){
+  const t=[['mes','Meses','fa-calendar-days'],['lista','Datas-chave','fa-list-ul'],['bim','Bimestres','fa-layer-group'],['obs','Observações','fa-circle-info']];
+  $('#calViewTabs').innerHTML=t.map(([k,n,i])=>`<button data-cv="${k}" class="rounded-2xl py-3 text-[11px] font-extrabold shadow ${calView===k?'bg-sage text-white':'bg-white dark:bg-slate-800'}"><i class="fa-solid ${i} block text-base mb-1"></i>${n}</button>`).join('');
+  $$('#calViewTabs [data-cv]').forEach(b=>b.onclick=()=>{calView=b.dataset.cv;renderCalViewTabs();});
+  ['mes','lista','bim','obs'].forEach(k=>$('#cal-'+k).classList.toggle('hidden',calView!==k));
+}
+
+function renderMonth(){
+  const mes=MESES[calMes];
+  $('#mLabel').textContent=`${mes} de 2026`;
+  const first=new Date(2026,calMes,1).getDay(), dias=new Date(2026,calMes+1,0).getDate();
+  let cells='';
+  for(let i=0;i<first;i++)cells+='<div></div>';
+  for(let d=1;d<=dias;d++){
+    const key=`${String(d).padStart(2,'0')}/${String(calMes+1).padStart(2,'0')}`;
+    const evs=CAL.filter(c=>c.dias.includes(key));
+    const cat=evs.length?CATS[evs[0].k]:null;
+    const hoje=new Date(), isToday=hoje.getFullYear()===2026&&hoje.getMonth()===calMes&&hoje.getDate()===d;
+    cells+=`<div class="aspect-square rounded-lg grid place-items-center text-[11px] font-bold ${cat?cat.cls:'bg-slate-50 dark:bg-slate-700/40'} ${isToday?'ring-2 ring-navy dark:ring-mint':''}" title="${evs.map(e=>esc(e.t)).join(' • ')}">${d}</div>`;
+  }
+  $('#calGrid').innerHTML=`<div class="grid grid-cols-7 gap-1 text-center text-[10px] font-extrabold text-graphite dark:text-slate-400 mb-1">${['D','S','T','Q','Q','S','S'].map(x=>`<div>${x}</div>`).join('')}</div>
+    <div class="grid grid-cols-7 gap-1">${cells}</div>`;
+
+  const mm=String(calMes+1).padStart(2,'0');
+  const evs=CAL.filter(c=>c.dias.some(d=>d.endsWith('/'+mm)));
+  $('#monthEvents').innerHTML=evs.length?evs.map(c=>calCard(c)).join(''):'<p class="text-xs text-graphite dark:text-slate-400">Sem eventos registrados neste mês.</p>';
+}
+function calCard(c){
+  const cat=CATS[c.k];
+  return `<div class="rounded-2xl p-3 bg-white dark:bg-slate-800 shadow flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl grid place-items-center ${cat.cls}"><i class="fa-solid ${c.i||cat.i}"></i></div>
+      <div class="min-w-0"><p class="text-xs font-extrabold">${esc(c.t)}</p>
+      <p class="text-[11px] text-graphite dark:text-slate-400">${c.label||c.dias.join(' · ')} • ${cat.n}</p></div>
+    </div>`;
+}
+function renderLegend(){
+  $('#calLegend').innerHTML=`<h3 class="text-sm font-extrabold mb-2"><i class="fa-solid fa-palette mr-1 text-sage"></i> Legenda</h3>
+    <div class="grid grid-cols-2 gap-2">${Object.entries(CATS).map(([k,c])=>`<div class="flex items-center gap-2"><span class="w-5 h-5 rounded ${c.cls}"></span><span class="text-[11px] font-bold">${c.n}</span></div>`).join('')}</div>`;
 }
 function renderCal(){
-  $('#calFilters').innerHTML=CALK.map(([k,n])=>`<button data-cal="${k}" class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold ${calFilter===k?'bg-sage text-white':'bg-white dark:bg-slate-800'}">${n}</button>`).join('');
+  $('#calFilters').innerHTML=[['all','Tudo'],...Object.entries(CATS).map(([k,c])=>[k,c.n])].map(([k,n])=>`<button data-cal="${k}" class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold ${calFilter===k?'bg-sage text-white':'bg-white dark:bg-slate-800'}">${n}</button>`).join('');
   $$('#calFilters [data-cal]').forEach(b=>b.onclick=()=>{calFilter=b.dataset.cal;renderCal();});
-  $('#calList').innerHTML=CAL.filter(c=>calFilter==='all'||c.k===calFilter).map(c=>`
-    <div class="rounded-2xl p-3 bg-white dark:bg-slate-800 shadow flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-mint dark:bg-slate-700 grid place-items-center text-sage"><i class="fa-solid ${c.i}"></i></div>
-      <div><p class="text-xs font-extrabold">${c.t}</p><p class="text-[11px] text-graphite dark:text-slate-400">${c.d}/2026</p></div>
-    </div>`).join('');
+  const list=CAL.filter(c=>calFilter==='all'||c.k===calFilter)
+    .slice().sort((a,b)=>ord(a.dias[0])-ord(b.dias[0]));
+  $('#calList').innerHTML=list.map(c=>calCard(c)).join('')||'<p class="text-xs text-graphite dark:text-slate-400">Nada encontrado.</p>';
   const ini=new Date('2026-02-02'),fim=new Date('2026-12-18'),now=new Date();
   const p=Math.max(0,Math.min(100,Math.round((now-ini)/(fim-ini)*100)));
   $('#yearBar').style.width=p+'%';
   $('#yearInfo').textContent=p<=0?'O ano letivo ainda não começou.':p>=100?'Ano letivo encerrado.':`Ano letivo ${p}% concluído • aprox. ${Math.round(200*p/100)} de 200 dias letivos.`;
 }
-function habsFor(comp,ano){return BNCC.filter(h=>h[0]===comp&&(!ano||h[1]===ano));}
-function fillHabs(){
-  const list=habsFor($('#plComp').value,$('#plAno').value);
-  $('#plHab').innerHTML=list.length?list.map(h=>`<option value="${h[2]}">${h[2]} — ${h[3].slice(0,60)}…</option>`).join(''):'<option value="">Sem habilidade cadastrada para este ano</option>';
+const ord=d=>{const [dd,mm]=d.split('/');return +mm*100+ +dd;};
+function renderBim(){
+  $('#bimList').innerHTML=BIMESTRES.map(b=>`<div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
+      <p class="text-xs font-extrabold text-sage">${b.n}</p>
+      <p class="text-[11px] mt-1"><b>Início:</b> ${b.ini} • <b>Fechamento:</b> ${b.fim}</p>
+      <p class="text-[11px] text-graphite dark:text-slate-400">${b.dias} dias letivos</p></div>`).join('');
+  $('#diasLetivos').innerHTML=DIAS_LETIVOS.map(([m,d])=>`<span class="px-3 py-1.5 rounded-full bg-mint dark:bg-slate-700 text-[11px] font-bold">${m}: ${d}</span>`).join('');
+  $('#sabados').innerHTML=SABADOS.map(s=>`<span class="px-3 py-1.5 rounded-full bg-mint dark:bg-slate-700 text-[11px] font-bold">${s}</span>`).join('');
 }
+function renderObs(){
+  $('#obsList').innerHTML=OBS.map((o,i)=>`<div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow flex gap-3">
+      <span class="w-6 h-6 shrink-0 rounded-lg bg-sage text-white grid place-items-center text-[11px] font-extrabold">${i+1}</span>
+      <p class="text-[11px] leading-snug">${esc(o)}</p></div>`).join('');
+}
+$('#mPrev').onclick=()=>{calMes=(calMes+11)%12;renderMonth();};
+$('#mNext').onclick=()=>{calMes=(calMes+1)%12;renderMonth();};
 
-/* ---- BUSCA PARA PLANEJAMENTO ---- */
-const COMPET={
-  'Matemática':['Raciocínio lógico, investigação e resolução de problemas (Comp. 2)','Uso crítico e criativo de tecnologias digitais (Comp. 5)'],
-  'Ciências':['Pensamento científico, crítico e criativo (Comp. 2)','Responsabilidade socioambiental e cuidado com a vida (Comp. 10)'],
-  'Português':['Linguagens: expressão e partilha de sentidos (Comp. 4)','Argumentação com base em fatos e dados (Comp. 7)'],
-  'História':['Valorização do conhecimento historicamente construído (Comp. 1)','Empatia, diálogo e resolução de conflitos (Comp. 9)'],
-  'Geografia':['Repertório cultural e leitura de mundo (Comp. 3)','Responsabilidade socioambiental (Comp. 10)'],
-  'Ed. Física':['Autoconhecimento e autocuidado (Comp. 8)','Empatia e cooperação (Comp. 9)'],
-  'Artes':['Repertório cultural e fruição estética (Comp. 3)','Comunicação em múltiplas linguagens (Comp. 4)'],
-  'Ensino Religioso':['Empatia, diálogo e respeito à diversidade (Comp. 9)','Repertório cultural (Comp. 3)'],
-  'Inglês/Libras':['Comunicação em diferentes linguagens (Comp. 4)','Repertório cultural e interculturalidade (Comp. 3)'],
-  'Computação':['Cultura digital e uso ético de tecnologias (Comp. 5)','Pensamento computacional e criativo (Comp. 2)'],
-  'Letramento':['Leitura, escrita e argumentação (Comp. 4)','Autonomia e projeto de vida (Comp. 6)']
-};
-function compsOf(label){
-  const l=label.toLowerCase(), r=new Set();
-  if(/portugu|letramento em l|lp\b/.test(l))r.add('Português');
-  if(/matem/.test(l))r.add('Matemática');
-  if(/ciênc/.test(l))r.add('Ciências');
-  if(/hist/.test(l))r.add('História');
-  if(/geogr/.test(l))r.add('Geografia');
-  if(/física|desporto/.test(l))r.add('Ed. Física');
-  if(/artes|artístico/.test(l))r.add('Artes');
-  if(/religios/.test(l))r.add('Ensino Religioso');
-  if(/inglês|libras/.test(l))r.add('Inglês/Libras');
-  if(/letramento/.test(l))r.add('Letramento');
-  return [...r];
-}
-const PROF_INDEX=(()=>{
-  const m={};
-  const add=(nome,turno,label,turmas)=>{
-    m[nome]=m[nome]||{nome,linhas:[]};
-    m[nome].linhas.push({turno,label,comps:compsOf(label),turmas});
-  };
-  PROFS_M.forEach(([n,d])=>add(n,'Matutino',d,TURMAS_TURNO.Matutino));
-  PROFS_V.forEach(([n,d])=>add(n,'Vespertino',d,TURMAS_TURNO.Vespertino));
-  JORNADA.forEach(b=>b.itens.forEach(([n,d])=>add(n,'Jornada Ampliada • '+b.t,d,[...TURMAS_TURNO.Matutino,...TURMAS_TURNO.Vespertino])));
-  return Object.values(m).sort((a,b)=>a.nome.localeCompare(b.nome));
-})();
-let planTurma='';
-function renderPlanSearch(){
-  const q=$('#qPlan').value.toLowerCase().trim();
-  $('#qPlanTurmas').innerHTML=[['','Todas as turmas'],...TURMAS.map(t=>[t,t])].map(([v,n])=>
-    `<button data-pt="${v}" class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold ${planTurma===v?'bg-sage text-white':'bg-mint dark:bg-slate-700 text-sagedark dark:text-mint'}">${n}</button>`).join('');
-  $$('#qPlanTurmas [data-pt]').forEach(b=>b.onclick=()=>{planTurma=b.dataset.pt;renderPlanSearch();});
-  const cards=[];
-  PROF_INDEX.forEach(p=>p.linhas.forEach(l=>{
-    if(planTurma&&!l.turmas.includes(planTurma))return;
-    const habs=l.comps.flatMap(c=>habsFor(c,'')).filter(h=>!planTurma||h[1]===planTurma[0]+'º');
-    const hay=(p.nome+' '+l.label+' '+l.turno+' '+l.comps.join(' ')+' '+l.turmas.join(' ')+' '+habs.map(h=>h[2]+h[3]).join(' ')).toLowerCase();
-    if(q&&!hay.includes(q))return;
-    const hlist=(q?habs.filter(h=>(h[2]+h[3]+h[0]).toLowerCase().includes(q)):[]).length
-      ? habs.filter(h=>(h[2]+h[3]+h[0]).toLowerCase().includes(q)) : habs;
-    cards.push(`
-      <div class="rounded-xl p-3 bg-mint dark:bg-slate-700 space-y-2">
-        <div class="flex items-start gap-2">
-          <div class="flex-1">
-            <p class="text-xs font-extrabold text-sagedark dark:text-mint">${esc(p.nome)}</p>
-            <p class="text-[11px]">${esc(l.label)} • ${esc(l.turno)}</p>
-            <p class="text-[10px] text-graphite dark:text-slate-300">Turmas: ${l.turmas.join(' · ')}</p>
-          </div>
-          <button data-usar="${esc(p.nome)}|${l.comps[0]||''}|${planTurma||l.turmas[0]}" class="text-[10px] font-bold bg-sage text-white rounded-lg px-2 py-1.5">Usar no plano</button>
-        </div>
-        <div class="space-y-1">
-          <p class="text-[10px] font-bold uppercase tracking-wide text-sagedark dark:text-mint">Habilidades</p>
-          ${hlist.slice(0,6).map(h=>`<p class="text-[10px]"><b>${h[2]}</b> (${h[1]} ano) — ${esc(h[3])}</p>`).join('')||'<p class="text-[10px]">Sem habilidade cadastrada.</p>'}
-          <p class="text-[10px] font-bold uppercase tracking-wide text-sagedark dark:text-mint pt-1">Competências gerais</p>
-          ${[...new Set(l.comps.flatMap(c=>COMPET[c]||[]))].map(c=>`<p class="text-[10px]">• ${esc(c)}</p>`).join('')||'<p class="text-[10px]">—</p>'}
-        </div>
-      </div>`);
-  }));
-  $('#planSearchOut').innerHTML=cards.join('')||'<p class="text-xs text-graphite dark:text-slate-400">Nada encontrado para esta busca.</p>';
-  $$('#planSearchOut [data-usar]').forEach(b=>b.onclick=()=>{
-    const [nome,comp,turma]=b.dataset.usar.split('|');
-    $('#plProf').value=nome; if(comp)$('#plComp').value=comp;
-    if(turma){$('#plTurma').value=turma; $('#plAno').value=turma[0]+'º';}
-    fillHabs(); $('#planForm').scrollIntoView({behavior:'smooth',block:'start'});
-  });
-}
-$('#planForm').onsubmit=e=>{
-  e.preventDefault();
-  const hab=BNCC.find(h=>h[2]===$('#plHab').value);
-  const p={id:Date.now(),tipo:$('#plTipo').value,ano:$('#plAno').value,comp:$('#plComp').value,
-    prof:$('#plProf').value,turma:$('#plTurma').value,
-    comp_gerais:(COMPET[$('#plComp').value]||[]).join(' | '),
-    hab:hab?`${hab[2]} — ${hab[3]}`:'—',tema:$('#plTema').value,met:$('#plMet').value,rec:$('#plRec').value,ava:$('#plAva').value,
-    data:new Date().toLocaleDateString('pt-BR')};
-  DB.plans.unshift(p);save();showPlan(p);renderPlans();renderProgress();
-};
-function planText(p){return `PLANO DE AULA ${p.tipo.toUpperCase()} — EducaTO 2026\nProfessor(a): ${p.prof||'—'} | Turma: ${p.turma||'—'}\nComponente: ${p.comp} | Ano: ${p.ano}\nHabilidade BNCC: ${p.hab}\nCompetências gerais: ${p.comp_gerais||'—'}\nTema/Objetivo: ${p.tema}\nMetodologia: ${p.met||'—'}\nRecursos: ${p.rec||'—'}\nAvaliação: ${p.ava||'—'}\nGerado em ${p.data}`;}
-
-let current=null;
-function showPlan(p){
-  current=p;
-  $('#planOut').innerHTML=`<h3 class="font-extrabold text-sage">Plano ${p.tipo} • ${p.comp} • ${p.ano} Ano</h3>
-    <p class="mt-1 text-xs"><b>Professor(a):</b> ${esc(p.prof||'—')} • <b>Turma:</b> ${esc(p.turma||'—')}</p>
-    <p class="mt-2 text-xs"><b>Habilidade BNCC:</b> ${esc(p.hab)}</p>
-    <p class="mt-1 text-xs"><b>Competências gerais:</b> ${esc(p.comp_gerais||'—')}</p>
-
-    <p class="mt-1 text-xs"><b>Tema/Objetivo:</b> ${esc(p.tema)}</p>
-    <p class="mt-1 text-xs"><b>Metodologia:</b> ${esc(p.met||'—')}</p>
-    <p class="mt-1 text-xs"><b>Recursos:</b> ${esc(p.rec||'—')}</p>
-    <p class="mt-1 text-xs"><b>Avaliação:</b> ${esc(p.ava||'—')}</p>
-    <p class="mt-2 text-[10px] text-graphite dark:text-slate-400">Gerado em ${p.data}</p>`;
-  $('#planOut').classList.remove('hidden'); $('#planActions').classList.remove('hidden');
-  $('#planActions').classList.add('grid');
-}
-$('#printPlan').onclick=()=>window.print();
-$('#exportPlan').onclick=()=>{
-  const blob=new Blob([planText(current)],{type:'text/plain;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`plano-${current.comp}-${current.ano}.txt`;a.click();
-};
-function renderPlans(){
-  $('#planList').innerHTML=DB.plans.length?DB.plans.map(p=>`
-    <div class="rounded-2xl p-3 bg-white dark:bg-slate-800 shadow flex items-center gap-3">
-      <div class="flex-1 min-w-0"><p class="text-xs font-extrabold truncate">${esc(p.tema)}</p>
-      <p class="text-[11px] text-graphite dark:text-slate-400">${p.tipo} • ${p.comp} • ${p.ano} • ${p.data}</p></div>
-      <button data-open="${p.id}" class="text-sage px-1"><i class="fa-solid fa-eye"></i></button>
-      <button data-delp="${p.id}" class="text-red-400 px-1"><i class="fa-solid fa-trash"></i></button>
-    </div>`).join(''):'<p class="text-xs text-graphite dark:text-slate-400">Nenhum plano salvo ainda.</p>';
-  $$('#planList [data-open]').forEach(b=>b.onclick=()=>showPlan(DB.plans.find(p=>p.id==b.dataset.open)));
-  $$('#planList [data-delp]').forEach(b=>b.onclick=()=>{DB.plans=DB.plans.filter(p=>p.id!=b.dataset.delp);save();renderPlans();renderProgress();});
-}
-function renderBncc(){
-  const q=$('#qBncc').value.toLowerCase().trim();
-  const list=BNCC.filter(h=>(favFilter!=='fav'||DB.favs.includes(h[2]))&&(!q||(h[0]+h[1]+h[2]+h[3]).toLowerCase().includes(q)));
-  $('#bnccList').innerHTML=list.length?list.map(h=>`
-    <div class="rounded-xl p-3 bg-mint dark:bg-slate-700 flex gap-2">
-      <div class="flex-1"><p class="text-[11px] font-extrabold text-sagedark dark:text-mint">${h[2]} • ${h[0]} • ${h[1]} Ano</p>
-      <p class="text-[11px] mt-1">${h[3]}</p></div>
-      <button data-fav="${h[2]}" class="px-1 ${DB.favs.includes(h[2])?'text-amber-400':'text-slate-400'}"><i class="fa-solid fa-star"></i></button>
-    </div>`).join(''):'<p class="text-xs text-graphite dark:text-slate-400">Nada encontrado.</p>';
-  $$('#bnccList [data-fav]').forEach(b=>b.onclick=()=>{
-    const c=b.dataset.fav; DB.favs=DB.favs.includes(c)?DB.favs.filter(x=>x!==c):[...DB.favs,c];
-    save();renderBncc();renderProgress();
-  });
-}
-$('#qBncc').oninput=renderBncc;
-$$('.favf').forEach(b=>b.onclick=()=>{favFilter=b.dataset.favf;
-  $$('.favf').forEach(x=>{const a=x.dataset.favf===favFilter;x.className='favf px-3 py-1.5 rounded-full '+(a?'bg-sage text-white':'bg-mint dark:bg-slate-700 text-sagedark dark:text-mint');});
-  renderBncc();});
-$('#calcMedia').onclick=()=>{
-  const n=[+$('#n1').value||0,+$('#n2').value||0,+$('#n3').value||0], p=[+$('#p1').value||0,+$('#p2').value||0,+$('#p3').value||0];
-  const sp=p.reduce((a,b)=>a+b,0);
-  if(!sp)return $('#mediaOut').textContent='Informe ao menos um peso.';
-  const m=n.reduce((a,v,i)=>a+v*p[i],0)/sp;
-  $('#mediaOut').innerHTML=`Média: <span class="${m>=6?'text-sage':'text-red-500'}">${m.toFixed(2)}</span> — ${m>=6?'Aprovado(a)':'Em recuperação'}`;
-};
-$('#calcFreq').onclick=()=>{
-  const t=+$('#fTotal').value||0, f=+$('#fFaltas').value||0;
-  if(!t)return $('#freqOut').textContent='Informe o total de aulas dadas.';
-  const pc=Math.max(0,(t-f)/t*100);
-  $('#freqOut').innerHTML=`Frequência: <span class="${pc>=75?'text-sage':'text-red-500'}">${pc.toFixed(1)}%</span> — ${pc>=75?'Dentro do mínimo legal (75%)':'Abaixo de 75%: acionar busca ativa'}`;
-};
 
 /* ============ TAB 5 ============ */
 let deferred=null;
@@ -685,15 +535,10 @@ $('#resetBtn').onclick=()=>{if(confirm('Apagar todos os agendamentos, planos e f
 /* ============ INIT ============ */
 opts($('#bkDia'),DIAS); opts($('#bkProf'),ALL_PROFS); opts($('#bkComp'),COMPONENTES); opts($('#bkTurma'),TURMAS); opts($('#bkAula'),AULAS);
 opts($('#fTurno'),Object.keys(HOR)); opts($('#fProf'),ALL_PROFS,'Todos os professores');
-opts($('#plTipo'),TIPOS); opts($('#plAno'),ANOS); opts($('#plComp'),COMPONENTES);
-opts($('#plProf'),ALL_PROFS); opts($('#plTurma'),TURMAS);
-$('#profList').innerHTML=PROF_INDEX.map(p=>`<option value="${p.nome}"></option>`).join('');
-$('#qPlan').oninput=renderPlanSearch;
 $('#bkData').value=new Date().toISOString().slice(0,10);
 $('#fTurno').onchange=renderGrade; $('#fProf').onchange=renderGrade;
-$('#plComp').onchange=fillHabs; $('#plAno').onchange=fillHabs;
 applyTheme(); setQuote(); renderReminders(); renderSpaceTabs(); renderBooks(); renderGrade();
-renderPedTabs(); renderCal(); fillHabs(); renderPlanSearch(); renderPlans(); renderBncc(); go('tab1');
+renderCalViewTabs(); renderLegend(); renderMonth(); renderCal(); renderBim(); renderObs(); go('tab1');
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js').catch(()=>{});
 </script>
