@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>EducaTO • Painel Pedagógico 2026</title>
+<title>EducaTO • Calendário e Gestão Escolar 2026</title>
 <meta name="description" content="PWA educacional offline: agendamentos, quadro de horários, calendário letivo 2026 SEDUC-TO, planos de aula BNCC e calculadoras pedagógicas." />
 <meta name="theme-color" content="#0d9488" />
 <link rel="manifest" href="/app/manifest.webmanifest" />
@@ -208,7 +208,7 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
     <button data-go="tab1" class="navb py-2.5 flex flex-col items-center gap-1 text-[10px] font-bold"><i class="fa-solid fa-house text-lg"></i>Início</button>
     <button data-go="tab2" class="navb py-2.5 flex flex-col items-center gap-1 text-[10px] font-bold"><i class="fa-solid fa-calendar-check text-lg"></i>Agendar</button>
     <button data-go="tab3" class="navb py-2.5 flex flex-col items-center gap-1 text-[10px] font-bold"><i class="fa-solid fa-table-list text-lg"></i>Horários</button>
-    <button data-go="tab4" class="navb py-2.5 flex flex-col items-center gap-1 text-[10px] font-bold"><i class="fa-solid fa-graduation-cap text-lg"></i>Pedagógico</button>
+    <button data-go="tab4" class="navb py-2.5 flex flex-col items-center gap-1 text-[10px] font-bold"><i class="fa-solid fa-calendar-days text-lg"></i>Calendário</button>
     <button data-go="tab5" class="navb py-2.5 flex flex-col items-center gap-1 text-[10px] font-bold"><i class="fa-solid fa-gear text-lg"></i>Guia</button>
   </div>
 </nav>
@@ -354,7 +354,7 @@ const toggleTheme=()=>{DB.theme=DB.theme==='dark'?'light':'dark';save();applyThe
 $('#themeBtn').onclick=toggleTheme; $('#themeSwitch').onclick=toggleTheme;
 
 /* ============ NAVEGAÇÃO ============ */
-const TITLES={tab1:'Bem-vindo(a)',tab2:'Agendamentos',tab3:'Quadro de Horários',tab4:'Calendário & Pedagógico',tab5:'Guia & Configurações'};
+const TITLES={tab1:'Bem-vindo(a)',tab2:'Agendamentos',tab3:'Quadro de Horários',tab4:'Calendário Letivo 2026',tab5:'Guia & Configurações'};
 function go(id){
   $$('.tabpane').forEach(s=>s.classList.toggle('hidden',s.id!==id));
   $('#pageTitle').textContent=TITLES[id];
@@ -370,11 +370,10 @@ function setQuote(){$('#quote').textContent=QUOTES[Math.floor(Math.random()*QUOT
 $('#newQuote').onclick=setQuote;
 
 function renderProgress(){
-  const total=5+3+1+3;
+  const total=5+3+1;
   const done=DB.visited.length
     +Math.min(3,Object.values(DB.books).filter(a=>a.length).length)
-    +(DB.plans.length?1:0)
-    +Math.min(3,DB.favs.length);
+    +(DB.visited.includes('tab4')?1:0);
   const p=Math.min(100,Math.round(done/total*100));
   $('#progBar').style.width=p+'%'; $('#progLabel').textContent=p+'%';
 }
@@ -536,15 +535,10 @@ $('#resetBtn').onclick=()=>{if(confirm('Apagar todos os agendamentos, planos e f
 /* ============ INIT ============ */
 opts($('#bkDia'),DIAS); opts($('#bkProf'),ALL_PROFS); opts($('#bkComp'),COMPONENTES); opts($('#bkTurma'),TURMAS); opts($('#bkAula'),AULAS);
 opts($('#fTurno'),Object.keys(HOR)); opts($('#fProf'),ALL_PROFS,'Todos os professores');
-opts($('#plTipo'),TIPOS); opts($('#plAno'),ANOS); opts($('#plComp'),COMPONENTES);
-opts($('#plProf'),ALL_PROFS); opts($('#plTurma'),TURMAS);
-$('#profList').innerHTML=PROF_INDEX.map(p=>`<option value="${p.nome}"></option>`).join('');
-$('#qPlan').oninput=renderPlanSearch;
 $('#bkData').value=new Date().toISOString().slice(0,10);
 $('#fTurno').onchange=renderGrade; $('#fProf').onchange=renderGrade;
-$('#plComp').onchange=fillHabs; $('#plAno').onchange=fillHabs;
 applyTheme(); setQuote(); renderReminders(); renderSpaceTabs(); renderBooks(); renderGrade();
-renderPedTabs(); renderCal(); fillHabs(); renderPlanSearch(); renderPlans(); renderBncc(); go('tab1');
+renderCalViewTabs(); renderLegend(); renderMonth(); renderCal(); renderBim(); renderObs(); go('tab1');
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js').catch(()=>{});
 </script>
