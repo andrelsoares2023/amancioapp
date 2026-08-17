@@ -455,187 +455,76 @@ function renderGrade(){
   $('#gradeList').innerHTML=html;
 }
 
-/* ============ TAB 4 ============ */
-let pedView='cal', calFilter='all', favFilter='all';
-function renderPedTabs(){
-  const t=[['cal','Calendário','fa-calendar-days'],['plan','Planos de Aula','fa-file-pen'],['tools','Ferramentas','fa-toolbox']];
-  $('#pedTabs').innerHTML=t.map(([k,n,i])=>`<button data-ped="${k}" class="rounded-2xl py-3 text-[11px] font-extrabold shadow ${pedView===k?'bg-sage text-white':'bg-white dark:bg-slate-800'}"><i class="fa-solid ${i} block text-base mb-1"></i>${n}</button>`).join('');
-  $$('#pedTabs [data-ped]').forEach(b=>b.onclick=()=>{pedView=b.dataset.ped;renderPedTabs();});
-  ['cal','plan','tools'].forEach(k=>$('#ped-'+k).classList.toggle('hidden',pedView!==k));
+/* ============ TAB 4 • CALENDÁRIO LETIVO 2026 ============ */
+let calView='mes', calFilter='all', calMes=new Date().getFullYear()===2026?new Date().getMonth():1;
+
+function renderCalViewTabs(){
+  const t=[['mes','Meses','fa-calendar-days'],['lista','Datas-chave','fa-list-ul'],['bim','Bimestres','fa-layer-group'],['obs','Observações','fa-circle-info']];
+  $('#calViewTabs').innerHTML=t.map(([k,n,i])=>`<button data-cv="${k}" class="rounded-2xl py-3 text-[11px] font-extrabold shadow ${calView===k?'bg-sage text-white':'bg-white dark:bg-slate-800'}"><i class="fa-solid ${i} block text-base mb-1"></i>${n}</button>`).join('');
+  $$('#calViewTabs [data-cv]').forEach(b=>b.onclick=()=>{calView=b.dataset.cv;renderCalViewTabs();});
+  ['mes','lista','bim','obs'].forEach(k=>$('#cal-'+k).classList.toggle('hidden',calView!==k));
+}
+
+function renderMonth(){
+  const mes=MESES[calMes];
+  $('#mLabel').textContent=`${mes} de 2026`;
+  const first=new Date(2026,calMes,1).getDay(), dias=new Date(2026,calMes+1,0).getDate();
+  let cells='';
+  for(let i=0;i<first;i++)cells+='<div></div>';
+  for(let d=1;d<=dias;d++){
+    const key=`${String(d).padStart(2,'0')}/${String(calMes+1).padStart(2,'0')}`;
+    const evs=CAL.filter(c=>c.dias.includes(key));
+    const cat=evs.length?CATS[evs[0].k]:null;
+    const hoje=new Date(), isToday=hoje.getFullYear()===2026&&hoje.getMonth()===calMes&&hoje.getDate()===d;
+    cells+=`<div class="aspect-square rounded-lg grid place-items-center text-[11px] font-bold ${cat?cat.cls:'bg-slate-50 dark:bg-slate-700/40'} ${isToday?'ring-2 ring-navy dark:ring-mint':''}" title="${evs.map(e=>esc(e.t)).join(' • ')}">${d}</div>`;
+  }
+  $('#calGrid').innerHTML=`<div class="grid grid-cols-7 gap-1 text-center text-[10px] font-extrabold text-graphite dark:text-slate-400 mb-1">${['D','S','T','Q','Q','S','S'].map(x=>`<div>${x}</div>`).join('')}</div>
+    <div class="grid grid-cols-7 gap-1">${cells}</div>`;
+
+  const mm=String(calMes+1).padStart(2,'0');
+  const evs=CAL.filter(c=>c.dias.some(d=>d.endsWith('/'+mm)));
+  $('#monthEvents').innerHTML=evs.length?evs.map(c=>calCard(c)).join(''):'<p class="text-xs text-graphite dark:text-slate-400">Sem eventos registrados neste mês.</p>';
+}
+function calCard(c){
+  const cat=CATS[c.k];
+  return `<div class="rounded-2xl p-3 bg-white dark:bg-slate-800 shadow flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl grid place-items-center ${cat.cls}"><i class="fa-solid ${c.i||cat.i}"></i></div>
+      <div class="min-w-0"><p class="text-xs font-extrabold">${esc(c.t)}</p>
+      <p class="text-[11px] text-graphite dark:text-slate-400">${c.label||c.dias.join(' · ')} • ${cat.n}</p></div>
+    </div>`;
+}
+function renderLegend(){
+  $('#calLegend').innerHTML=`<h3 class="text-sm font-extrabold mb-2"><i class="fa-solid fa-palette mr-1 text-sage"></i> Legenda</h3>
+    <div class="grid grid-cols-2 gap-2">${Object.entries(CATS).map(([k,c])=>`<div class="flex items-center gap-2"><span class="w-5 h-5 rounded ${c.cls}"></span><span class="text-[11px] font-bold">${c.n}</span></div>`).join('')}</div>`;
 }
 function renderCal(){
-  $('#calFilters').innerHTML=CALK.map(([k,n])=>`<button data-cal="${k}" class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold ${calFilter===k?'bg-sage text-white':'bg-white dark:bg-slate-800'}">${n}</button>`).join('');
+  $('#calFilters').innerHTML=[['all','Tudo'],...Object.entries(CATS).map(([k,c])=>[k,c.n])].map(([k,n])=>`<button data-cal="${k}" class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold ${calFilter===k?'bg-sage text-white':'bg-white dark:bg-slate-800'}">${n}</button>`).join('');
   $$('#calFilters [data-cal]').forEach(b=>b.onclick=()=>{calFilter=b.dataset.cal;renderCal();});
-  $('#calList').innerHTML=CAL.filter(c=>calFilter==='all'||c.k===calFilter).map(c=>`
-    <div class="rounded-2xl p-3 bg-white dark:bg-slate-800 shadow flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-mint dark:bg-slate-700 grid place-items-center text-sage"><i class="fa-solid ${c.i}"></i></div>
-      <div><p class="text-xs font-extrabold">${c.t}</p><p class="text-[11px] text-graphite dark:text-slate-400">${c.d}/2026</p></div>
-    </div>`).join('');
+  const list=CAL.filter(c=>calFilter==='all'||c.k===calFilter)
+    .slice().sort((a,b)=>ord(a.dias[0])-ord(b.dias[0]));
+  $('#calList').innerHTML=list.map(c=>calCard(c)).join('')||'<p class="text-xs text-graphite dark:text-slate-400">Nada encontrado.</p>';
   const ini=new Date('2026-02-02'),fim=new Date('2026-12-18'),now=new Date();
   const p=Math.max(0,Math.min(100,Math.round((now-ini)/(fim-ini)*100)));
   $('#yearBar').style.width=p+'%';
   $('#yearInfo').textContent=p<=0?'O ano letivo ainda não começou.':p>=100?'Ano letivo encerrado.':`Ano letivo ${p}% concluído • aprox. ${Math.round(200*p/100)} de 200 dias letivos.`;
 }
-function habsFor(comp,ano){return BNCC.filter(h=>h[0]===comp&&(!ano||h[1]===ano));}
-function fillHabs(){
-  const list=habsFor($('#plComp').value,$('#plAno').value);
-  $('#plHab').innerHTML=list.length?list.map(h=>`<option value="${h[2]}">${h[2]} — ${h[3].slice(0,60)}…</option>`).join(''):'<option value="">Sem habilidade cadastrada para este ano</option>';
+const ord=d=>{const [dd,mm]=d.split('/');return +mm*100+ +dd;};
+function renderBim(){
+  $('#bimList').innerHTML=BIMESTRES.map(b=>`<div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
+      <p class="text-xs font-extrabold text-sage">${b.n}</p>
+      <p class="text-[11px] mt-1"><b>Início:</b> ${b.ini} • <b>Fechamento:</b> ${b.fim}</p>
+      <p class="text-[11px] text-graphite dark:text-slate-400">${b.dias} dias letivos</p></div>`).join('');
+  $('#diasLetivos').innerHTML=DIAS_LETIVOS.map(([m,d])=>`<span class="px-3 py-1.5 rounded-full bg-mint dark:bg-slate-700 text-[11px] font-bold">${m}: ${d}</span>`).join('');
+  $('#sabados').innerHTML=SABADOS.map(s=>`<span class="px-3 py-1.5 rounded-full bg-mint dark:bg-slate-700 text-[11px] font-bold">${s}</span>`).join('');
 }
+function renderObs(){
+  $('#obsList').innerHTML=OBS.map((o,i)=>`<div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow flex gap-3">
+      <span class="w-6 h-6 shrink-0 rounded-lg bg-sage text-white grid place-items-center text-[11px] font-extrabold">${i+1}</span>
+      <p class="text-[11px] leading-snug">${esc(o)}</p></div>`).join('');
+}
+$('#mPrev').onclick=()=>{calMes=(calMes+11)%12;renderMonth();};
+$('#mNext').onclick=()=>{calMes=(calMes+1)%12;renderMonth();};
 
-/* ---- BUSCA PARA PLANEJAMENTO ---- */
-const COMPET={
-  'Matemática':['Raciocínio lógico, investigação e resolução de problemas (Comp. 2)','Uso crítico e criativo de tecnologias digitais (Comp. 5)'],
-  'Ciências':['Pensamento científico, crítico e criativo (Comp. 2)','Responsabilidade socioambiental e cuidado com a vida (Comp. 10)'],
-  'Português':['Linguagens: expressão e partilha de sentidos (Comp. 4)','Argumentação com base em fatos e dados (Comp. 7)'],
-  'História':['Valorização do conhecimento historicamente construído (Comp. 1)','Empatia, diálogo e resolução de conflitos (Comp. 9)'],
-  'Geografia':['Repertório cultural e leitura de mundo (Comp. 3)','Responsabilidade socioambiental (Comp. 10)'],
-  'Ed. Física':['Autoconhecimento e autocuidado (Comp. 8)','Empatia e cooperação (Comp. 9)'],
-  'Artes':['Repertório cultural e fruição estética (Comp. 3)','Comunicação em múltiplas linguagens (Comp. 4)'],
-  'Ensino Religioso':['Empatia, diálogo e respeito à diversidade (Comp. 9)','Repertório cultural (Comp. 3)'],
-  'Inglês/Libras':['Comunicação em diferentes linguagens (Comp. 4)','Repertório cultural e interculturalidade (Comp. 3)'],
-  'Computação':['Cultura digital e uso ético de tecnologias (Comp. 5)','Pensamento computacional e criativo (Comp. 2)'],
-  'Letramento':['Leitura, escrita e argumentação (Comp. 4)','Autonomia e projeto de vida (Comp. 6)']
-};
-function compsOf(label){
-  const l=label.toLowerCase(), r=new Set();
-  if(/portugu|letramento em l|lp\b/.test(l))r.add('Português');
-  if(/matem/.test(l))r.add('Matemática');
-  if(/ciênc/.test(l))r.add('Ciências');
-  if(/hist/.test(l))r.add('História');
-  if(/geogr/.test(l))r.add('Geografia');
-  if(/física|desporto/.test(l))r.add('Ed. Física');
-  if(/artes|artístico/.test(l))r.add('Artes');
-  if(/religios/.test(l))r.add('Ensino Religioso');
-  if(/inglês|libras/.test(l))r.add('Inglês/Libras');
-  if(/letramento/.test(l))r.add('Letramento');
-  return [...r];
-}
-const PROF_INDEX=(()=>{
-  const m={};
-  const add=(nome,turno,label,turmas)=>{
-    m[nome]=m[nome]||{nome,linhas:[]};
-    m[nome].linhas.push({turno,label,comps:compsOf(label),turmas});
-  };
-  PROFS_M.forEach(([n,d])=>add(n,'Matutino',d,TURMAS_TURNO.Matutino));
-  PROFS_V.forEach(([n,d])=>add(n,'Vespertino',d,TURMAS_TURNO.Vespertino));
-  JORNADA.forEach(b=>b.itens.forEach(([n,d])=>add(n,'Jornada Ampliada • '+b.t,d,[...TURMAS_TURNO.Matutino,...TURMAS_TURNO.Vespertino])));
-  return Object.values(m).sort((a,b)=>a.nome.localeCompare(b.nome));
-})();
-let planTurma='';
-function renderPlanSearch(){
-  const q=$('#qPlan').value.toLowerCase().trim();
-  $('#qPlanTurmas').innerHTML=[['','Todas as turmas'],...TURMAS.map(t=>[t,t])].map(([v,n])=>
-    `<button data-pt="${v}" class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold ${planTurma===v?'bg-sage text-white':'bg-mint dark:bg-slate-700 text-sagedark dark:text-mint'}">${n}</button>`).join('');
-  $$('#qPlanTurmas [data-pt]').forEach(b=>b.onclick=()=>{planTurma=b.dataset.pt;renderPlanSearch();});
-  const cards=[];
-  PROF_INDEX.forEach(p=>p.linhas.forEach(l=>{
-    if(planTurma&&!l.turmas.includes(planTurma))return;
-    const habs=l.comps.flatMap(c=>habsFor(c,'')).filter(h=>!planTurma||h[1]===planTurma[0]+'º');
-    const hay=(p.nome+' '+l.label+' '+l.turno+' '+l.comps.join(' ')+' '+l.turmas.join(' ')+' '+habs.map(h=>h[2]+h[3]).join(' ')).toLowerCase();
-    if(q&&!hay.includes(q))return;
-    const hlist=(q?habs.filter(h=>(h[2]+h[3]+h[0]).toLowerCase().includes(q)):[]).length
-      ? habs.filter(h=>(h[2]+h[3]+h[0]).toLowerCase().includes(q)) : habs;
-    cards.push(`
-      <div class="rounded-xl p-3 bg-mint dark:bg-slate-700 space-y-2">
-        <div class="flex items-start gap-2">
-          <div class="flex-1">
-            <p class="text-xs font-extrabold text-sagedark dark:text-mint">${esc(p.nome)}</p>
-            <p class="text-[11px]">${esc(l.label)} • ${esc(l.turno)}</p>
-            <p class="text-[10px] text-graphite dark:text-slate-300">Turmas: ${l.turmas.join(' · ')}</p>
-          </div>
-          <button data-usar="${esc(p.nome)}|${l.comps[0]||''}|${planTurma||l.turmas[0]}" class="text-[10px] font-bold bg-sage text-white rounded-lg px-2 py-1.5">Usar no plano</button>
-        </div>
-        <div class="space-y-1">
-          <p class="text-[10px] font-bold uppercase tracking-wide text-sagedark dark:text-mint">Habilidades</p>
-          ${hlist.slice(0,6).map(h=>`<p class="text-[10px]"><b>${h[2]}</b> (${h[1]} ano) — ${esc(h[3])}</p>`).join('')||'<p class="text-[10px]">Sem habilidade cadastrada.</p>'}
-          <p class="text-[10px] font-bold uppercase tracking-wide text-sagedark dark:text-mint pt-1">Competências gerais</p>
-          ${[...new Set(l.comps.flatMap(c=>COMPET[c]||[]))].map(c=>`<p class="text-[10px]">• ${esc(c)}</p>`).join('')||'<p class="text-[10px]">—</p>'}
-        </div>
-      </div>`);
-  }));
-  $('#planSearchOut').innerHTML=cards.join('')||'<p class="text-xs text-graphite dark:text-slate-400">Nada encontrado para esta busca.</p>';
-  $$('#planSearchOut [data-usar]').forEach(b=>b.onclick=()=>{
-    const [nome,comp,turma]=b.dataset.usar.split('|');
-    $('#plProf').value=nome; if(comp)$('#plComp').value=comp;
-    if(turma){$('#plTurma').value=turma; $('#plAno').value=turma[0]+'º';}
-    fillHabs(); $('#planForm').scrollIntoView({behavior:'smooth',block:'start'});
-  });
-}
-$('#planForm').onsubmit=e=>{
-  e.preventDefault();
-  const hab=BNCC.find(h=>h[2]===$('#plHab').value);
-  const p={id:Date.now(),tipo:$('#plTipo').value,ano:$('#plAno').value,comp:$('#plComp').value,
-    prof:$('#plProf').value,turma:$('#plTurma').value,
-    comp_gerais:(COMPET[$('#plComp').value]||[]).join(' | '),
-    hab:hab?`${hab[2]} — ${hab[3]}`:'—',tema:$('#plTema').value,met:$('#plMet').value,rec:$('#plRec').value,ava:$('#plAva').value,
-    data:new Date().toLocaleDateString('pt-BR')};
-  DB.plans.unshift(p);save();showPlan(p);renderPlans();renderProgress();
-};
-function planText(p){return `PLANO DE AULA ${p.tipo.toUpperCase()} — EducaTO 2026\nProfessor(a): ${p.prof||'—'} | Turma: ${p.turma||'—'}\nComponente: ${p.comp} | Ano: ${p.ano}\nHabilidade BNCC: ${p.hab}\nCompetências gerais: ${p.comp_gerais||'—'}\nTema/Objetivo: ${p.tema}\nMetodologia: ${p.met||'—'}\nRecursos: ${p.rec||'—'}\nAvaliação: ${p.ava||'—'}\nGerado em ${p.data}`;}
-
-let current=null;
-function showPlan(p){
-  current=p;
-  $('#planOut').innerHTML=`<h3 class="font-extrabold text-sage">Plano ${p.tipo} • ${p.comp} • ${p.ano} Ano</h3>
-    <p class="mt-1 text-xs"><b>Professor(a):</b> ${esc(p.prof||'—')} • <b>Turma:</b> ${esc(p.turma||'—')}</p>
-    <p class="mt-2 text-xs"><b>Habilidade BNCC:</b> ${esc(p.hab)}</p>
-    <p class="mt-1 text-xs"><b>Competências gerais:</b> ${esc(p.comp_gerais||'—')}</p>
-
-    <p class="mt-1 text-xs"><b>Tema/Objetivo:</b> ${esc(p.tema)}</p>
-    <p class="mt-1 text-xs"><b>Metodologia:</b> ${esc(p.met||'—')}</p>
-    <p class="mt-1 text-xs"><b>Recursos:</b> ${esc(p.rec||'—')}</p>
-    <p class="mt-1 text-xs"><b>Avaliação:</b> ${esc(p.ava||'—')}</p>
-    <p class="mt-2 text-[10px] text-graphite dark:text-slate-400">Gerado em ${p.data}</p>`;
-  $('#planOut').classList.remove('hidden'); $('#planActions').classList.remove('hidden');
-  $('#planActions').classList.add('grid');
-}
-$('#printPlan').onclick=()=>window.print();
-$('#exportPlan').onclick=()=>{
-  const blob=new Blob([planText(current)],{type:'text/plain;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`plano-${current.comp}-${current.ano}.txt`;a.click();
-};
-function renderPlans(){
-  $('#planList').innerHTML=DB.plans.length?DB.plans.map(p=>`
-    <div class="rounded-2xl p-3 bg-white dark:bg-slate-800 shadow flex items-center gap-3">
-      <div class="flex-1 min-w-0"><p class="text-xs font-extrabold truncate">${esc(p.tema)}</p>
-      <p class="text-[11px] text-graphite dark:text-slate-400">${p.tipo} • ${p.comp} • ${p.ano} • ${p.data}</p></div>
-      <button data-open="${p.id}" class="text-sage px-1"><i class="fa-solid fa-eye"></i></button>
-      <button data-delp="${p.id}" class="text-red-400 px-1"><i class="fa-solid fa-trash"></i></button>
-    </div>`).join(''):'<p class="text-xs text-graphite dark:text-slate-400">Nenhum plano salvo ainda.</p>';
-  $$('#planList [data-open]').forEach(b=>b.onclick=()=>showPlan(DB.plans.find(p=>p.id==b.dataset.open)));
-  $$('#planList [data-delp]').forEach(b=>b.onclick=()=>{DB.plans=DB.plans.filter(p=>p.id!=b.dataset.delp);save();renderPlans();renderProgress();});
-}
-function renderBncc(){
-  const q=$('#qBncc').value.toLowerCase().trim();
-  const list=BNCC.filter(h=>(favFilter!=='fav'||DB.favs.includes(h[2]))&&(!q||(h[0]+h[1]+h[2]+h[3]).toLowerCase().includes(q)));
-  $('#bnccList').innerHTML=list.length?list.map(h=>`
-    <div class="rounded-xl p-3 bg-mint dark:bg-slate-700 flex gap-2">
-      <div class="flex-1"><p class="text-[11px] font-extrabold text-sagedark dark:text-mint">${h[2]} • ${h[0]} • ${h[1]} Ano</p>
-      <p class="text-[11px] mt-1">${h[3]}</p></div>
-      <button data-fav="${h[2]}" class="px-1 ${DB.favs.includes(h[2])?'text-amber-400':'text-slate-400'}"><i class="fa-solid fa-star"></i></button>
-    </div>`).join(''):'<p class="text-xs text-graphite dark:text-slate-400">Nada encontrado.</p>';
-  $$('#bnccList [data-fav]').forEach(b=>b.onclick=()=>{
-    const c=b.dataset.fav; DB.favs=DB.favs.includes(c)?DB.favs.filter(x=>x!==c):[...DB.favs,c];
-    save();renderBncc();renderProgress();
-  });
-}
-$('#qBncc').oninput=renderBncc;
-$$('.favf').forEach(b=>b.onclick=()=>{favFilter=b.dataset.favf;
-  $$('.favf').forEach(x=>{const a=x.dataset.favf===favFilter;x.className='favf px-3 py-1.5 rounded-full '+(a?'bg-sage text-white':'bg-mint dark:bg-slate-700 text-sagedark dark:text-mint');});
-  renderBncc();});
-$('#calcMedia').onclick=()=>{
-  const n=[+$('#n1').value||0,+$('#n2').value||0,+$('#n3').value||0], p=[+$('#p1').value||0,+$('#p2').value||0,+$('#p3').value||0];
-  const sp=p.reduce((a,b)=>a+b,0);
-  if(!sp)return $('#mediaOut').textContent='Informe ao menos um peso.';
-  const m=n.reduce((a,v,i)=>a+v*p[i],0)/sp;
-  $('#mediaOut').innerHTML=`Média: <span class="${m>=6?'text-sage':'text-red-500'}">${m.toFixed(2)}</span> — ${m>=6?'Aprovado(a)':'Em recuperação'}`;
-};
-$('#calcFreq').onclick=()=>{
-  const t=+$('#fTotal').value||0, f=+$('#fFaltas').value||0;
-  if(!t)return $('#freqOut').textContent='Informe o total de aulas dadas.';
-  const pc=Math.max(0,(t-f)/t*100);
-  $('#freqOut').innerHTML=`Frequência: <span class="${pc>=75?'text-sage':'text-red-500'}">${pc.toFixed(1)}%</span> — ${pc>=75?'Dentro do mínimo legal (75%)':'Abaixo de 75%: acionar busca ativa'}`;
-};
 
 /* ============ TAB 5 ============ */
 let deferred=null;
