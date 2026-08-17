@@ -115,93 +115,54 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
   <div id="gradeList" class="space-y-3"></div>
 </section>
 
-<!-- ================= TAB 4 : CALENDÁRIO & PEDAGÓGICO ================= -->
+<!-- ================= TAB 4 : CALENDÁRIO LETIVO 2026 ================= -->
 <section id="tab4" class="tabpane hidden space-y-4">
-  <div class="grid grid-cols-3 gap-2" id="pedTabs"></div>
+  <div class="rounded-2xl p-4 bg-gradient-to-br from-navy to-graphite text-white shadow">
+    <p class="text-[11px] uppercase tracking-widest opacity-80">Calendário Escolar 2026 • Regular e EJA • SEDUC-TO</p>
+    <p class="mt-1 text-sm font-extrabold">02/02/2026 → 18/12/2026 • 200 dias letivos</p>
+    <div class="mt-3 h-2 rounded-full bg-white/20 overflow-hidden"><div id="yearBar" class="h-full bg-sage"></div></div>
+    <p id="yearInfo" class="mt-2 text-[11px] opacity-90"></p>
+  </div>
 
-  <!-- calendário -->
-  <div id="ped-cal" class="space-y-3">
-    <div class="rounded-2xl p-4 bg-gradient-to-br from-navy to-graphite text-white shadow">
-      <p class="text-[11px] uppercase tracking-widest opacity-80">Ano letivo 2026 • SEDUC-TO</p>
-      <p class="mt-1 text-sm font-extrabold">02/02/2026 → 18/12/2026 • 200 dias letivos</p>
-      <div class="mt-3 h-2 rounded-full bg-white/20 overflow-hidden"><div id="yearBar" class="h-full bg-sage"></div></div>
-      <p id="yearInfo" class="mt-2 text-[11px] opacity-90"></p>
+  <div class="grid grid-cols-2 gap-2" id="calViewTabs"></div>
+
+  <!-- VISÃO: MESES -->
+  <div id="cal-mes" class="space-y-3">
+    <div class="rounded-2xl p-3 bg-white dark:bg-slate-800 shadow flex items-center justify-between gap-2">
+      <button id="mPrev" class="w-9 h-9 rounded-xl bg-mint dark:bg-slate-700 text-sagedark dark:text-mint"><i class="fa-solid fa-chevron-left"></i></button>
+      <p id="mLabel" class="text-sm font-extrabold"></p>
+      <button id="mNext" class="w-9 h-9 rounded-xl bg-mint dark:bg-slate-700 text-sagedark dark:text-mint"><i class="fa-solid fa-chevron-right"></i></button>
     </div>
+    <div id="calGrid" class="rounded-2xl p-3 bg-white dark:bg-slate-800 shadow"></div>
+    <div id="calLegend" class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow"></div>
+    <div id="monthEvents" class="space-y-2"></div>
+  </div>
+
+  <!-- VISÃO: DATAS-CHAVE -->
+  <div id="cal-lista" class="hidden space-y-3">
     <div class="flex gap-2 overflow-x-auto pb-1" id="calFilters"></div>
     <div id="calList" class="space-y-2"></div>
   </div>
 
-  <!-- gerador de planos -->
-  <div id="ped-plan" class="hidden space-y-3">
-    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-2">
-      <h3 class="text-sm font-extrabold"><i class="fa-solid fa-user-magnifying-glass mr-1 text-sage"></i> Busca para planejamento</h3>
-      <p class="text-[11px] text-graphite dark:text-slate-400">Pesquise por professor(a), componente, turma ou assunto e veja as habilidades e competências a desenvolver.</p>
-      <input id="qPlan" list="profList" class="fld" placeholder="Ex.: Cleide, Matemática, 72.01, frações..." />
-      <datalist id="profList"></datalist>
-      <div class="flex gap-2 overflow-x-auto pb-1" id="qPlanTurmas"></div>
-      <div id="planSearchOut" class="space-y-2 max-h-[28rem] overflow-y-auto"></div>
+  <!-- VISÃO: BIMESTRES -->
+  <div id="cal-bim" class="hidden space-y-3">
+    <div id="bimList" class="space-y-2"></div>
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
+      <h3 class="text-sm font-extrabold"><i class="fa-solid fa-calendar-check mr-1 text-sage"></i> Dias letivos por mês (1º semestre)</h3>
+      <div id="diasLetivos" class="mt-2 flex flex-wrap gap-2"></div>
     </div>
-    <form id="planForm" class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-3">
-
-      <div class="grid grid-cols-2 gap-2">
-        <div><label class="text-[11px] font-bold">Tipo de plano</label><select id="plTipo" class="fld mt-1"></select></div>
-        <div><label class="text-[11px] font-bold">Ano</label><select id="plAno" class="fld mt-1"></select></div>
-      </div>
-      <div class="grid grid-cols-2 gap-2">
-        <div><label class="text-[11px] font-bold">Professor(a)</label><select id="plProf" class="fld mt-1"></select></div>
-        <div><label class="text-[11px] font-bold">Turma</label><select id="plTurma" class="fld mt-1"></select></div>
-      </div>
-      <div><label class="text-[11px] font-bold">Componente curricular</label><select id="plComp" class="fld mt-1"></select></div>
-
-      <div><label class="text-[11px] font-bold">Habilidade BNCC</label><select id="plHab" class="fld mt-1"></select></div>
-      <div><label class="text-[11px] font-bold">Objetivo / Tema</label><input id="plTema" class="fld mt-1" placeholder="Tema da aula" required /></div>
-      <div><label class="text-[11px] font-bold">Metodologia</label><textarea id="plMet" rows="2" class="fld mt-1" placeholder="Aula dialogada, trabalho em grupo..."></textarea></div>
-      <div><label class="text-[11px] font-bold">Recursos</label><textarea id="plRec" rows="2" class="fld mt-1" placeholder="Chromebooks, laboratório, quadro..."></textarea></div>
-      <div><label class="text-[11px] font-bold">Avaliação</label><textarea id="plAva" rows="2" class="fld mt-1" placeholder="Participação, produção escrita..."></textarea></div>
-      <button class="w-full bg-sage text-white font-extrabold rounded-xl py-3 active:scale-95 transition"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Gerar plano</button>
-    </form>
-    <div id="planOut" class="hidden rounded-2xl p-4 bg-white dark:bg-slate-800 shadow text-sm"></div>
-    <div id="planActions" class="hidden grid grid-cols-2 gap-2 noprint">
-      <button id="printPlan" class="rounded-xl py-2.5 bg-navy text-white text-xs font-bold active:scale-95"><i class="fa-solid fa-print mr-1"></i> Imprimir / PDF</button>
-      <button id="exportPlan" class="rounded-xl py-2.5 bg-sagedark text-white text-xs font-bold active:scale-95"><i class="fa-solid fa-download mr-1"></i> Exportar .txt</button>
+    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
+      <h3 class="text-sm font-extrabold"><i class="fa-solid fa-calendar-week mr-1 text-sage"></i> Sábados letivos</h3>
+      <div id="sabados" class="mt-2 flex flex-wrap gap-2"></div>
     </div>
-    <div><h3 class="text-sm font-extrabold mb-2"><i class="fa-solid fa-folder-open mr-1 text-sage"></i> Planos salvos</h3><div id="planList" class="space-y-2"></div></div>
   </div>
 
-  <!-- ferramentas -->
-  <div id="ped-tools" class="hidden space-y-3">
-    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-2">
-      <h3 class="text-sm font-extrabold"><i class="fa-solid fa-calculator mr-1 text-sage"></i> Média bimestral ponderada</h3>
-      <div class="grid grid-cols-2 gap-2">
-        <input id="n1" type="number" step="0.1" class="fld" placeholder="Nota 1" /><input id="p1" type="number" step="0.1" class="fld" placeholder="Peso 1" value="1" />
-        <input id="n2" type="number" step="0.1" class="fld" placeholder="Nota 2" /><input id="p2" type="number" step="0.1" class="fld" placeholder="Peso 2" value="2" />
-        <input id="n3" type="number" step="0.1" class="fld" placeholder="Nota 3" /><input id="p3" type="number" step="0.1" class="fld" placeholder="Peso 3" value="3" />
-      </div>
-      <button id="calcMedia" class="w-full bg-sage text-white font-bold rounded-xl py-2.5 text-sm active:scale-95">Calcular média</button>
-      <p id="mediaOut" class="text-sm font-extrabold text-center"></p>
-    </div>
-
-    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-2">
-      <h3 class="text-sm font-extrabold"><i class="fa-solid fa-user-check mr-1 text-sage"></i> Frequência do aluno</h3>
-      <div class="grid grid-cols-2 gap-2">
-        <input id="fTotal" type="number" class="fld" placeholder="Aulas dadas" />
-        <input id="fFaltas" type="number" class="fld" placeholder="Faltas" />
-      </div>
-      <button id="calcFreq" class="w-full bg-sage text-white font-bold rounded-xl py-2.5 text-sm active:scale-95">Calcular frequência</button>
-      <p id="freqOut" class="text-sm font-extrabold text-center"></p>
-    </div>
-
-    <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-2">
-      <h3 class="text-sm font-extrabold"><i class="fa-solid fa-magnifying-glass mr-1 text-sage"></i> Busca global BNCC & dicas</h3>
-      <input id="qBncc" class="fld" placeholder="Ex.: EF07MA, frações, células, mapas..." />
-      <div class="flex gap-2 text-[11px] font-bold">
-        <button data-favf="all" class="favf px-3 py-1.5 rounded-full bg-sage text-white">Tudo</button>
-        <button data-favf="fav" class="favf px-3 py-1.5 rounded-full bg-mint dark:bg-slate-700 text-sagedark dark:text-mint">Favoritos</button>
-      </div>
-      <div id="bnccList" class="space-y-2 max-h-96 overflow-y-auto"></div>
-    </div>
+  <!-- VISÃO: OBSERVAÇÕES -->
+  <div id="cal-obs" class="hidden space-y-2">
+    <div id="obsList" class="space-y-2"></div>
   </div>
 </section>
+
 
 <!-- ================= TAB 5 : GUIA & CONFIG ================= -->
 <section id="tab5" class="tabpane hidden space-y-4">
