@@ -14,7 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          aula: number
+          componente: string
+          created_at: string
+          data: string
+          delete_token: string
+          dia_semana: string
+          id: string
+          objetivo: string
+          origem_local_id: string | null
+          professor: string
+          recurso: string
+          revisar: boolean
+          turma: string
+          turno: string | null
+        }
+        Insert: {
+          aula: number
+          componente: string
+          created_at?: string
+          data: string
+          delete_token: string
+          dia_semana: string
+          id?: string
+          objetivo?: string
+          origem_local_id?: string | null
+          professor: string
+          recurso: string
+          revisar?: boolean
+          turma: string
+          turno?: string | null
+        }
+        Update: {
+          aula?: number
+          componente?: string
+          created_at?: string
+          data?: string
+          delete_token?: string
+          dia_semana?: string
+          id?: string
+          objetivo?: string
+          origem_local_id?: string | null
+          professor?: string
+          recurso?: string
+          revisar?: boolean
+          turma?: string
+          turno?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
