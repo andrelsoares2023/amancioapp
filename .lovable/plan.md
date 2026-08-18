@@ -1,49 +1,64 @@
-# Atualização pontual: conflitos, dia da semana, nome e logo
+# AMANCIOapp — agendamentos com backend, dia da semana automático e nova identidade
 
-Apenas o app existente em `public/app/` (arquivo único) e o título da rota React serão ajustados. Nada de estrutura, dados salvos, professores, turmas, horários ou calendário será removido.
+Atualização pontual do projeto atual. Nenhuma funcionalidade existente é removida: professores, turmas, quadro de horários, calendário letivo 2026, tema claro/escuro, offline e guia de instalação permanecem como estão.
 
-## 1. Regra de conflito (Data + Turno + Aula + Recurso)
+## Onde as coisas estão hoje (verificado)
 
-Causa do problema atual: o formulário de reserva não tem campo de **Turno**, e a validação compara apenas `data` e `aula` dentro do recurso. Por isso "1ª aula" da manhã e "1ª aula" da tarde são tratadas como o mesmo horário.
+- O app inteiro é o arquivo único `public/app/index.html`, exibido pela rota `src/routes/index.tsx`.
+- Os agendamentos são gravados **apenas no LocalStorage do aparelho** (linhas 219–220: `DB.books.{video,chrome,lab}`).
+- A validação de conflito está na linha 425, dentro do `submit` do formulário: compara só `data` + `aula`.
+- **Não existe hoje** backend, banco, API, Supabase nem migrations no projeto.
+- O formulário **não tem campo de Turno** — essa é a causa real do bug: a 1ª aula da manhã e a 1ª aula da tarde chegam ao validador como o mesmo "1ª Aula" na mesma data, então a segunda é recusada.
 
-Correção:
-- Adicionar o campo **Turno** (Matutino / Vespertino) no formulário de reserva, obrigatório.
-- A lista de turmas passa a filtrar pelo turno escolhido (manhã: 62.01, 72.01, 82.01, 92.01 / tarde: 62.02, 82.02, 92.02), e a lista de professores mostra quem atua no turno.
-- Conflito passa a ser: mesmo recurso **e** mesma data **e** mesmo turno **e** mesma aula. Qualquer diferença em um desses quatro itens é permitida.
-- Reservas já salvas não têm turno gravado: o turno delas será inferido da turma (sufixo `.01` = matutino, `.02` = vespertino) apenas na hora de comparar e exibir, sem reescrever nem apagar nada.
-- O turno também aparece no cartão de cada reserva salva e nos lembretes.
+## 1. Nova camada de backend (Lovable Cloud)
 
-Observação importante: hoje o app é 100% offline e grava as reservas no próprio aparelho (LocalStorage), sem banco de dados nem servidor. Portanto não existe camada de backend onde aplicar a regra, e não há reservas compartilhadas entre dois usuários ao mesmo tempo. A validação corrigida é a única barreira possível nessa arquitetura. Se você quiser que as reservas sejam compartilhadas entre professores no mesmo servidor, com bloqueio garantido no banco (índice único em recurso + data + turno + aula), isso é um segundo passo que exige ativar o backend do app — me diga se quer que eu inclua.
+Ativar o backend e criar a tabela de reservas, para que a regra seja garantida no banco e as reservas fiquem compartilhadas entre todos os professores da escola:
 
-## 2. Dia da semana automático
+- Tabela `bookings`: `id`, `recurso` (video | chrome | lab), `data` (date), `turno` (matutino | vespertino), `aula` (1..5), `dia_semana`, `professor`, `componente`, `turma`, `objetivo`, `created_at`.
+- **Índice único em (recurso, data, turno, aula)** — é isso que impede fisicamente duas reservas do mesmo recurso no mesmo horário, mesmo com dois professores salvando ao mesmo tempo. A tentativa duplicada volta como erro do banco e é traduzida em mensagem de conflito na tela.
+- RLS ativada com política pública de leitura/escrita e os GRANTs correspondentes (o app não tem login, conforme a regra "zero login" atual).
+- API HTTP em `src/routes/api/public/bookings.ts` (GET listar, POST criar, DELETE remover) com validação Zod do turno/aula/data e tratamento do erro de unicidade. O app único em `public/app/index.html` consome essa API com `fetch`.
+- **Modo offline preservado**: o LocalStorage continua funcionando como cache/fallback. Sem internet o app mostra as reservas já sincronizadas e avisa que a confirmação definitiva ocorre ao reconectar; com internet, o banco é a fonte da verdade.
+- **Migração dos dados existentes**: as reservas já salvas no aparelho são enviadas uma única vez para o banco na primeira abertura (turno inferido pela turma: sufixo `.01` = matutino, `.02` = vespertino), sem apagar nada do LocalStorage. Duplicatas legítimas de horário que não couberem no índice único ficam sinalizadas na lista para o usuário resolver, nunca descartadas em silêncio.
 
-- O `<select>` "Dia da semana" vira um campo somente leitura, preenchido automaticamente a partir da data.
-- Cálculo com data local (`new Date(ano, mês-1, dia)` a partir das partes de `YYYY-MM-DD`), evitando o deslocamento de fuso que faz cair no dia anterior.
-- Atualiza na hora a cada mudança de data; sábado/domingo são mostrados com aviso de dia não letivo.
-- O valor gravado passa a ser sempre coerente com a data. Reservas antigas continuam intactas e, quando o dia gravado divergir da data, o cartão mostra o dia correto calculado da data.
+## 2. Regra de conflito correta (frontend + banco)
 
-## 3. Nome AMANCIOapp
+- Novo campo **Turno** (Matutino / Vespertino) obrigatório no formulário; turmas e professores filtrados pelo turno escolhido (manhã: 62.01, 72.01, 82.01, 92.01 / tarde: 62.02, 82.02, 92.02).
+- Conflito = mesmo **recurso** + mesma **data** + mesmo **turno** + mesma **aula**. Qualquer diferença em um desses quatro é permitida.
+- Checagem imediata na tela (mensagem antes de enviar) e barreira definitiva no índice único do banco.
+- Turno passa a aparecer no cartão de cada reserva e nos lembretes da Home.
 
-Atualizar em: título da página, cabeçalho do app, texto de notificação, guia de instalação (aba Configurações), `manifest.webmanifest` (`name` e `short_name`) e o `head()` da rota `src/routes/index.tsx`. Nenhuma URL, escopo do PWA ou funcionalidade muda.
+## 3. Dia da semana automático
 
-## 4. Logomarca oficial
+- O `<select>` "Dia da semana" vira campo **somente leitura**, calculado da data com data local (`new Date(ano, mês-1, dia)` a partir das partes de `YYYY-MM-DD`), sem desvio de fuso.
+- Recalcula imediatamente a cada troca de data; sábado/domingo exibidos com aviso de dia não letivo.
+- O valor gravado é sempre coerente com a data. Reservas antigas com dia divergente continuam salvas e passam a exibir o dia correto derivado da data.
 
-A imagem enviada passa a ser a logo oficial:
-- Ícones do PWA 192px e 512px gerados a partir dela, quadrados, sem esticar nem cortar (fundo verde da própria imagem preenche as bordas).
-- Favicon do navegador a partir da mesma imagem.
-- Logo exibida no cabeçalho do app (marca circular ao lado do título) e no cartão de boas-vindas da Home. Não existe tela de login.
-- `sw.js` com nova versão de cache para que os aparelhos já instalados recebam os arquivos novos.
+## 4. Nome e logomarca AMANCIOapp
+
+- Nome atualizado em: título da página, cabeçalho do app, texto das notificações, guia de instalação, `public/app/manifest.webmanifest` (`name`/`short_name`) e o `head()` de `src/routes/index.tsx`.
+- A imagem enviada passa a ser a logo oficial: ícones do PWA 192px e 512px gerados dela em formato quadrado, sem esticar nem cortar; favicon do navegador (`public/favicon.png` + link em `src/routes/__root.tsx`); logo no cabeçalho do app e no cartão de boas-vindas. Não existe tela de login.
+- `public/app/sw.js` recebe nova versão de cache para que aparelhos já instalados baixem os arquivos novos.
+- Nenhuma URL, escopo do PWA ou integração é alterada.
 
 ## 5. Testes que serão executados
 
-Automatizados no navegador, sobre o app rodando:
+Automatizados no navegador contra o app rodando, mais checagem direta no banco:
 - A: 24/08/2026 manhã 1ª aula Sala de Vídeo + tarde 1ª aula Sala de Vídeo → ambos aceitos.
-- B: repetir 24/08/2026 manhã 1ª aula Sala de Vídeo → segundo recusado com mensagem de conflito.
+- B: repetir 24/08/2026 manhã 1ª aula Sala de Vídeo → recusado (na tela e pelo índice único, testado também por duas gravações simultâneas).
 - C: manhã 1ª aula + manhã 2ª aula, mesmo recurso → ambos aceitos.
 - E: mesma data/turno/aula em Sala de Vídeo e Chromebooks → ambos aceitos.
-- D: escolher 24/08/2026 → mostra "Segunda-feira"; trocar a data → recalcula; campo não editável.
-- F: conferência visual da logo no cabeçalho, favicon, ícones e nome AMANCIOapp no manifest.
+- D: 24/08/2026 → "Segunda-feira"; trocar a data recalcula; campo não editável.
+- F: logo no cabeçalho, favicon, ícones do PWA e nome AMANCIOapp no manifest.
 
-## Detalhes técnicos
+## Arquivos e camadas alteradas
 
-Arquivos alterados: `public/app/index.html` (campo Turno, `bkForm.onsubmit`, `renderBooks`, `renderReminders`, cabeçalho, textos), `public/app/manifest.webmanifest`, `public/app/sw.js` (versão do cache), `public/app/icon-192.png` / `icon-512.png`, `public/favicon.png` + `src/routes/__root.tsx` (link do favicon), `src/routes/index.tsx` (título/meta). Reservas existentes em LocalStorage permanecem na mesma chave e formato, com campos novos opcionais.
+| Camada | Arquivo |
+| --- | --- |
+| Banco | migration: tabela `bookings`, índice único `(recurso, data, turno, aula)`, RLS + GRANTs |
+| API | `src/routes/api/public/bookings.ts` (GET/POST/DELETE com validação e erro de conflito) |
+| App | `public/app/index.html` (campo Turno, validação, dia automático, sincronização com a API, logo, nome) |
+| PWA | `public/app/manifest.webmanifest`, `public/app/sw.js`, `public/app/icon-192.png`, `public/app/icon-512.png` |
+| Site | `src/routes/index.tsx` (título/meta), `src/routes/__root.tsx` + `public/favicon.png` |
+
+Nada é recriado do zero e a integração de deploy existente não é tocada.
