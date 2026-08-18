@@ -14,12 +14,27 @@ Atualização pontual do projeto atual. Nenhuma funcionalidade existente é remo
 
 Ativar o backend e criar a tabela de reservas, para que a regra seja garantida no banco e as reservas fiquem compartilhadas entre todos os professores da escola:
 
-- Tabela `bookings`: `id`, `recurso` (video | chrome | lab), `data` (date), `turno` (matutino | vespertino), `aula` (1..5), `dia_semana`, `professor`, `componente`, `turma`, `objetivo`, `created_at`.
+- Tabela `bookings`: `id`, `recurso` (video | chrome | lab), `data` (date), `turno` (matutino | vespertino | null), `aula` (1..5), `dia_semana`, `professor`, `componente`, `turma`, `objetivo`, `delete_token`, `origem_local_id`, `revisar` (boolean), `created_at`.
 - **Índice único em (recurso, data, turno, aula)** — é isso que impede fisicamente duas reservas do mesmo recurso no mesmo horário, mesmo com dois professores salvando ao mesmo tempo. A tentativa duplicada volta como erro do banco e é traduzida em mensagem de conflito na tela.
-- RLS ativada com política pública de leitura/escrita e os GRANTs correspondentes (o app não tem login, conforme a regra "zero login" atual).
+- RLS ativada com os GRANTs correspondentes: leitura e criação liberadas (o app não tem login, conforme a regra "zero login" atual), **exclusão bloqueada para o público** — nenhuma política permite DELETE pelo cliente.
 - API HTTP em `src/routes/api/public/bookings.ts` (GET listar, POST criar, DELETE remover) com validação Zod do turno/aula/data e tratamento do erro de unicidade. O app único em `public/app/index.html` consome essa API com `fetch`.
+
+### Proteção da exclusão (sem login)
+
+- Ao criar a reserva, o servidor gera um **token secreto de exclusão** e o devolve apenas para quem criou; o app guarda esse token no aparelho junto da reserva. O token nunca aparece na listagem pública.
+- O DELETE só é aceito com `id` + token correto, conferido no servidor. Sem o token, a requisição é recusada com 403 — logo, ninguém pode varrer a API apagando reservas de terceiros.
+- A exclusão continua acontecendo pelo mesmo botão de lixeira, sem nenhuma mudança para o professor: quem criou a reserva no próprio aparelho tem o token e apaga normalmente.
+- Para os casos em que a coordenação precisa remover uma reserva feita em outro aparelho, o DELETE também aceita uma senha administrativa guardada como segredo no servidor, pedida em um prompt simples dentro da aba Configurações. Isso não é login de professor e não altera o fluxo normal de uso.
+- Rate limit simples por IP nas rotas de criação e exclusão, para evitar abuso automatizado.
 - **Modo offline preservado**: o LocalStorage continua funcionando como cache/fallback. Sem internet o app mostra as reservas já sincronizadas e avisa que a confirmação definitiva ocorre ao reconectar; com internet, o banco é a fonte da verdade.
-- **Migração dos dados existentes**: as reservas já salvas no aparelho são enviadas uma única vez para o banco na primeira abertura (turno inferido pela turma: sufixo `.01` = matutino, `.02` = vespertino), sem apagar nada do LocalStorage. Duplicatas legítimas de horário que não couberem no índice único ficam sinalizadas na lista para o usuário resolver, nunca descartadas em silêncio.
+
+### Migração das reservas existentes (sem perda)
+
+- Cada reserva do LocalStorage é enviada ao backend uma única vez, identificada por `origem_local_id` (o `id` atual), o que evita duplicar em reenvios.
+- Turno inferido **somente quando seguro**: turma terminando em `.01` = matutino, `.02` = vespertino. Sem esse padrão, o turno vai como nulo e a reserva é marcada com `revisar = true`, aparecendo na lista com um aviso "confirmar turno" — nunca com um valor inventado.
+- Nenhuma reserva é apagada, sobrescrita ou descartada. Duplicatas de horário que o índice único recusar são preservadas no aparelho e mostradas como pendentes de resolução manual, com a mensagem do motivo.
+- O LocalStorage permanece intacto como backup durante todo o processo; a reserva só é marcada como sincronizada depois que o backend confirma a gravação (resposta com o `id` do banco). Em caso de falha, a reserva continua local e a tentativa é repetida na próxima abertura.
+
 
 ## 2. Regra de conflito correta (frontend + banco)
 
