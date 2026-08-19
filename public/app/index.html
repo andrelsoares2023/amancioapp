@@ -109,9 +109,14 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
 
 
   <div>
-    <h3 class="text-sm font-extrabold mb-2"><i class="fa-solid fa-list-check mr-1 text-sage"></i> Reservas salvas</h3>
+    <div class="flex items-center justify-between mb-2 gap-2">
+      <h3 class="text-sm font-extrabold"><i class="fa-solid fa-list-check mr-1 text-sage"></i> Reservas da escola</h3>
+      <button id="bkSyncBtn" class="text-[11px] font-bold text-sage px-2 py-1 rounded-lg bg-mint dark:bg-slate-700"><i class="fa-solid fa-rotate mr-1"></i>Atualizar</button>
+    </div>
+    <p id="bkSync" class="text-[11px] font-bold text-graphite dark:text-slate-400 mb-2"></p>
     <div id="bkList" class="space-y-2"></div>
   </div>
+
 </section>
 
 <!-- ================= TAB 3 : HORÁRIOS ================= -->
