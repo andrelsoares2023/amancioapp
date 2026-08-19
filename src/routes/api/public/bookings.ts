@@ -127,7 +127,7 @@ export const Route = createFileRoute("/api/public/bookings")({
           .single();
 
         if (error) {
-          if (error.code === "23505" || error.code === "23P01" || error.code === "23505" || error.message.includes("duplicate key")) {
+          if (error.code === "23505" || error.message.includes("duplicate key")) {
             const { data: conflito } = await db
               .from("bookings")
               .select("professor, turma, aula, turno")
