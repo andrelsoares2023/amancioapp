@@ -230,7 +230,7 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
 <script>
 /* ============ STORAGE ============ */
 const K='educato2026';
-const DB=Object.assign({books:{video:[],chrome:[],lab:[]},plans:[],favs:[],visited:[],theme:'light'},JSON.parse(localStorage.getItem(K)||'{}'));
+const DB=Object.assign({books:{video:[],chrome:[],lab:[]},remote:{video:[],chrome:[],lab:[]},tokens:{},plans:[],favs:[],visited:[],theme:'light'},JSON.parse(localStorage.getItem(K)||'{}'));
 const save=()=>localStorage.setItem(K,JSON.stringify(DB));
 
 /* ============ DADOS ============ */
