@@ -87,20 +87,26 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
 
   <form id="bkForm" class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-3">
     <h3 class="text-sm font-extrabold" id="bkTitle"></h3>
+  <form id="bkForm" class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-3">
+    <h3 class="text-sm font-extrabold" id="bkTitle"></h3>
     <div class="grid grid-cols-2 gap-2">
-      <div><label class="text-[11px] font-bold">Dia da semana</label><select id="bkDia" class="fld mt-1"></select></div>
       <div><label class="text-[11px] font-bold">Data</label><input type="date" id="bkData" class="fld mt-1" required /></div>
+      <div><label class="text-[11px] font-bold">Dia da semana</label><input type="text" id="bkDia" class="fld mt-1 bg-mint dark:bg-slate-700" readonly aria-readonly="true" /></div>
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+      <div><label class="text-[11px] font-bold">Turno</label><select id="bkTurno" class="fld mt-1" required></select></div>
+      <div><label class="text-[11px] font-bold">Horário / Aula</label><select id="bkAula" class="fld mt-1"></select></div>
     </div>
     <div><label class="text-[11px] font-bold">Professor(a)</label><select id="bkProf" class="fld mt-1"></select></div>
     <div class="grid grid-cols-2 gap-2">
       <div><label class="text-[11px] font-bold">Componente</label><select id="bkComp" class="fld mt-1"></select></div>
       <div><label class="text-[11px] font-bold">Turma</label><select id="bkTurma" class="fld mt-1"></select></div>
     </div>
-    <div><label class="text-[11px] font-bold">Horário / Aula</label><select id="bkAula" class="fld mt-1"></select></div>
     <div><label class="text-[11px] font-bold">Assunto / Objetivos da aula</label><textarea id="bkObj" rows="2" class="fld mt-1" placeholder="Ex.: Sistema solar — observação e registro" required></textarea></div>
     <p id="bkMsg" class="text-xs font-bold hidden"></p>
     <button class="w-full bg-sage text-white font-extrabold rounded-xl py-3 active:scale-95 transition"><i class="fa-solid fa-calendar-plus mr-1"></i> Reservar espaço</button>
   </form>
+
 
   <div>
     <h3 class="text-sm font-extrabold mb-2"><i class="fa-solid fa-list-check mr-1 text-sage"></i> Reservas salvas</h3>
