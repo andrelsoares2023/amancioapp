@@ -1,4 +1,4 @@
-const CACHE = "educato-2026-v3";
+const CACHE = "amancioapp-2026-v4";
 const ASSETS = [
   "/app/index.html",
   "/app/manifest.webmanifest",
