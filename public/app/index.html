@@ -190,7 +190,7 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
     <ol class="mt-2 text-xs space-y-2 list-decimal list-inside text-graphite dark:text-slate-300">
       <li><b>Android/Chrome:</b> menu ⋮ → “Instalar aplicativo” / “Adicionar à tela inicial”.</li>
       <li><b>iOS/Safari:</b> botão Compartilhar → “Adicionar à Tela de Início”.</li>
-      <li>Confirme o nome <b>EducaTO</b> e toque em Adicionar.</li>
+      <li>Confirme o nome <b>AMANCIOapp</b> e toque em Adicionar.</li>
       <li>O ícone aparece na tela inicial e o app abre em tela cheia, mesmo sem internet.</li>
     </ol>
     <button id="installBtn" class="mt-3 w-full bg-sage text-white font-extrabold rounded-xl py-3 active:scale-95 transition hidden"><i class="fa-solid fa-download mr-1"></i> Instalar agora</button>
@@ -407,7 +407,7 @@ function renderReminders(){
 $('#notifBtn').onclick=async()=>{
   if(!('Notification' in window))return alert('Este dispositivo não suporta notificações.');
   const p=await Notification.requestPermission();
-  if(p==='granted')new Notification('EducaTO 2026',{body:'Lembretes ativados! Você será avisado das rotinas pedagógicas.',icon:'/app/icon-192.png'});
+  if(p==='granted')new Notification('AMANCIOapp 2026',{body:'Lembretes ativados! Você será avisado das rotinas pedagógicas.',icon:'/app/icon-192.png'});
 };
 
 /* ============ TAB 2 • AGENDAMENTOS (backend compartilhado + offline) ============ */
