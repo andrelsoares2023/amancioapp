@@ -30,12 +30,15 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
 <body class="font-sans bg-mint text-navy dark:bg-navy dark:text-mint transition-colors">
 
 <header class="sticky top-0 z-30 bg-sage text-white shadow-lg noprint">
-  <div class="px-4 pt-5 pb-4 flex items-center justify-between">
-    <div>
-      <p class="text-[11px] uppercase tracking-widest opacity-80">SEDUC-TO • 2026</p>
-      <h1 class="text-lg font-extrabold leading-tight" id="pageTitle">Bem-vindo(a)</h1>
+  <div class="px-4 pt-5 pb-4 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <img src="/app/icon-192.png" alt="Logomarca AMANCIOapp — Escola Estadual Amâncio de Moraes" class="w-11 h-11 rounded-xl bg-white/90 object-contain p-0.5 shrink-0" />
+      <div class="min-w-0">
+        <p class="text-[11px] uppercase tracking-widest opacity-80 truncate">AMANCIOapp • SEDUC-TO 2026</p>
+        <h1 class="text-lg font-extrabold leading-tight truncate" id="pageTitle">Bem-vindo(a)</h1>
+      </div>
     </div>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 shrink-0">
       <button id="themeBtn" aria-label="Alternar tema" class="w-10 h-10 rounded-full bg-white/15 active:scale-95 transition"><i class="fa-solid fa-moon"></i></button>
       <button data-go="tab5" aria-label="Configurações" class="w-10 h-10 rounded-full bg-white/15 active:scale-95 transition"><i class="fa-solid fa-gear"></i></button>
     </div>
