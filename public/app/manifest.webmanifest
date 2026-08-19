@@ -1,7 +1,7 @@
 {
-  "name": "EducaTO • Painel Pedagógico 2026",
-  "short_name": "EducaTO",
-  "description": "App educacional offline para professores, direção e coordenação pedagógica.",
+  "name": "AMANCIOapp • Escola Estadual Amâncio de Moraes",
+  "short_name": "AMANCIOapp",
+  "description": "Acolher e Educar — agendamentos, horários e calendário letivo 2026 da Escola Estadual Amâncio de Moraes.",
   "start_url": "/app/index.html",
   "scope": "/app/",
   "display": "standalone",

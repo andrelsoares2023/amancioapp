@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>EducaTO • Calendário e Gestão Escolar 2026</title>
-<meta name="description" content="PWA educacional offline: agendamentos, quadro de horários, calendário letivo 2026 SEDUC-TO, planos de aula BNCC e calculadoras pedagógicas." />
+<title>AMANCIOapp • Calendário e Gestão Escolar 2026</title>
+<meta name="description" content="AMANCIOapp — Escola Estadual Amâncio de Moraes: agendamento de espaços, quadro de horários e calendário letivo 2026 SEDUC-TO, funcionando offline no celular." />
 <meta name="theme-color" content="#0d9488" />
 <link rel="manifest" href="/app/manifest.webmanifest" />
 <link rel="apple-touch-icon" href="/app/icon-192.png" />
@@ -30,12 +30,15 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
 <body class="font-sans bg-mint text-navy dark:bg-navy dark:text-mint transition-colors">
 
 <header class="sticky top-0 z-30 bg-sage text-white shadow-lg noprint">
-  <div class="px-4 pt-5 pb-4 flex items-center justify-between">
-    <div>
-      <p class="text-[11px] uppercase tracking-widest opacity-80">SEDUC-TO • 2026</p>
-      <h1 class="text-lg font-extrabold leading-tight" id="pageTitle">Bem-vindo(a)</h1>
+  <div class="px-4 pt-5 pb-4 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <img src="/app/icon-192.png" alt="Logomarca AMANCIOapp — Escola Estadual Amâncio de Moraes" class="w-11 h-11 rounded-xl bg-white/90 object-contain p-0.5 shrink-0" />
+      <div class="min-w-0">
+        <p class="text-[11px] uppercase tracking-widest opacity-80 truncate">AMANCIOapp • SEDUC-TO 2026</p>
+        <h1 class="text-lg font-extrabold leading-tight truncate" id="pageTitle">Bem-vindo(a)</h1>
+      </div>
     </div>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 shrink-0">
       <button id="themeBtn" aria-label="Alternar tema" class="w-10 h-10 rounded-full bg-white/15 active:scale-95 transition"><i class="fa-solid fa-moon"></i></button>
       <button data-go="tab5" aria-label="Configurações" class="w-10 h-10 rounded-full bg-white/15 active:scale-95 transition"><i class="fa-solid fa-gear"></i></button>
     </div>
@@ -84,25 +87,36 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
 
   <form id="bkForm" class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-3">
     <h3 class="text-sm font-extrabold" id="bkTitle"></h3>
+  <form id="bkForm" class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-3">
+    <h3 class="text-sm font-extrabold" id="bkTitle"></h3>
     <div class="grid grid-cols-2 gap-2">
-      <div><label class="text-[11px] font-bold">Dia da semana</label><select id="bkDia" class="fld mt-1"></select></div>
       <div><label class="text-[11px] font-bold">Data</label><input type="date" id="bkData" class="fld mt-1" required /></div>
+      <div><label class="text-[11px] font-bold">Dia da semana</label><input type="text" id="bkDia" class="fld mt-1 bg-mint dark:bg-slate-700" readonly aria-readonly="true" /></div>
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+      <div><label class="text-[11px] font-bold">Turno</label><select id="bkTurno" class="fld mt-1" required></select></div>
+      <div><label class="text-[11px] font-bold">Horário / Aula</label><select id="bkAula" class="fld mt-1"></select></div>
     </div>
     <div><label class="text-[11px] font-bold">Professor(a)</label><select id="bkProf" class="fld mt-1"></select></div>
     <div class="grid grid-cols-2 gap-2">
       <div><label class="text-[11px] font-bold">Componente</label><select id="bkComp" class="fld mt-1"></select></div>
       <div><label class="text-[11px] font-bold">Turma</label><select id="bkTurma" class="fld mt-1"></select></div>
     </div>
-    <div><label class="text-[11px] font-bold">Horário / Aula</label><select id="bkAula" class="fld mt-1"></select></div>
     <div><label class="text-[11px] font-bold">Assunto / Objetivos da aula</label><textarea id="bkObj" rows="2" class="fld mt-1" placeholder="Ex.: Sistema solar — observação e registro" required></textarea></div>
     <p id="bkMsg" class="text-xs font-bold hidden"></p>
     <button class="w-full bg-sage text-white font-extrabold rounded-xl py-3 active:scale-95 transition"><i class="fa-solid fa-calendar-plus mr-1"></i> Reservar espaço</button>
   </form>
 
+
   <div>
-    <h3 class="text-sm font-extrabold mb-2"><i class="fa-solid fa-list-check mr-1 text-sage"></i> Reservas salvas</h3>
+    <div class="flex items-center justify-between mb-2 gap-2">
+      <h3 class="text-sm font-extrabold"><i class="fa-solid fa-list-check mr-1 text-sage"></i> Reservas da escola</h3>
+      <button id="bkSyncBtn" class="text-[11px] font-bold text-sage px-2 py-1 rounded-lg bg-mint dark:bg-slate-700"><i class="fa-solid fa-rotate mr-1"></i>Atualizar</button>
+    </div>
+    <p id="bkSync" class="text-[11px] font-bold text-graphite dark:text-slate-400 mb-2"></p>
     <div id="bkList" class="space-y-2"></div>
   </div>
+
 </section>
 
 <!-- ================= TAB 3 : HORÁRIOS ================= -->
@@ -176,7 +190,7 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
     <ol class="mt-2 text-xs space-y-2 list-decimal list-inside text-graphite dark:text-slate-300">
       <li><b>Android/Chrome:</b> menu ⋮ → “Instalar aplicativo” / “Adicionar à tela inicial”.</li>
       <li><b>iOS/Safari:</b> botão Compartilhar → “Adicionar à Tela de Início”.</li>
-      <li>Confirme o nome <b>EducaTO</b> e toque em Adicionar.</li>
+      <li>Confirme o nome <b>AMANCIOapp</b> e toque em Adicionar.</li>
       <li>O ícone aparece na tela inicial e o app abre em tela cheia, mesmo sem internet.</li>
     </ol>
     <button id="installBtn" class="mt-3 w-full bg-sage text-white font-extrabold rounded-xl py-3 active:scale-95 transition hidden"><i class="fa-solid fa-download mr-1"></i> Instalar agora</button>
@@ -216,7 +230,7 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
 <script>
 /* ============ STORAGE ============ */
 const K='educato2026';
-const DB=Object.assign({books:{video:[],chrome:[],lab:[]},plans:[],favs:[],visited:[],theme:'light'},JSON.parse(localStorage.getItem(K)||'{}'));
+const DB=Object.assign({books:{video:[],chrome:[],lab:[]},remote:{video:[],chrome:[],lab:[]},tokens:{},plans:[],favs:[],visited:[],theme:'light'},JSON.parse(localStorage.getItem(K)||'{}'));
 const save=()=>localStorage.setItem(K,JSON.stringify(DB));
 
 /* ============ DADOS ============ */
@@ -393,46 +407,164 @@ function renderReminders(){
 $('#notifBtn').onclick=async()=>{
   if(!('Notification' in window))return alert('Este dispositivo não suporta notificações.');
   const p=await Notification.requestPermission();
-  if(p==='granted')new Notification('EducaTO 2026',{body:'Lembretes ativados! Você será avisado das rotinas pedagógicas.',icon:'/app/icon-192.png'});
+  if(p==='granted')new Notification('AMANCIOapp 2026',{body:'Lembretes ativados! Você será avisado das rotinas pedagógicas.',icon:'/app/icon-192.png'});
 };
 
-/* ============ TAB 2 ============ */
+/* ============ TAB 2 • AGENDAMENTOS (backend compartilhado + offline) ============ */
 let esp='video';
+const API='/api/public/bookings';
+const TURNOS=['Matutino','Vespertino'];
+const turnoKey=t=>String(t||'').toLowerCase().startsWith('m')?'matutino':(String(t||'').toLowerCase().startsWith('v')?'vespertino':null);
+const turnoLabel=k=>k==='matutino'?'Matutino':(k==='vespertino'?'Vespertino':'Turno não informado');
+const aulaNum=a=>Math.max(1,AULAS.indexOf(a)+1)||1;
+const aulaLabel=n=>AULAS[(n||1)-1]||n+'ª Aula';
+const diaDaData=d=>{const [y,m,dd]=String(d||'').split('-').map(Number);if(!y)return'';const n=new Date(y,m-1,dd).getDay();return['Domingo','2ª Feira','3ª Feira','4ª Feira','5ª Feira','6ª Feira','Sábado'][n];};
+const turnoDaTurma=t=>String(t||'').endsWith('.01')?'matutino':(String(t||'').endsWith('.02')?'vespertino':null);
+DB.remote=DB.remote||{video:[],chrome:[],lab:[]};
+let bkOnline=true;
+
+function toLocal(r){return{rid:r.id,data:r.data,dia:r.dia_semana,prof:r.professor,comp:r.componente,turma:r.turma,aula:aulaLabel(r.aula),obj:r.objetivo,turno:r.turno,revisar:r.revisar};}
+function meuToken(rid){return (DB.tokens||{})[rid];}
+
+async function apiGet(){
+  const r=await fetch(API,{headers:{'Accept':'application/json'}});
+  if(!r.ok)throw new Error('http '+r.status);
+  const j=await r.json();
+  const g={video:[],chrome:[],lab:[]};
+  (j.bookings||[]).forEach(b=>{if(g[b.recurso])g[b.recurso].push(toLocal(b));});
+  DB.remote=g; DB.tokens=DB.tokens||{}; save(); return g;
+}
+function setSync(txt,cls){const el=$('#bkSync');el.textContent=txt;el.className='text-[11px] font-bold mb-2 '+(cls||'text-graphite dark:text-slate-400');}
+
+async function syncBooks(){
+  setSync('Sincronizando reservas da escola…');
+  try{
+    await migrarLocais();
+    await apiGet(); bkOnline=true;
+    const pend=Object.values(DB.books).flat().filter(b=>!b.rid).length;
+    setSync(pend?`Sincronizado • ${pend} reserva(s) ainda pendente(s) neste aparelho.`:'Sincronizado com o servidor da escola.','text-[11px] font-bold text-sage');
+  }catch(e){
+    bkOnline=false;
+    setSync('Sem conexão — mostrando as reservas salvas neste aparelho.','text-[11px] font-bold text-amber-500');
+  }
+  renderBooks(); renderProgress(); renderReminders();
+}
+
+/* Migração única: envia reservas antigas do LocalStorage para o servidor, sem duplicar. */
+async function migrarLocais(){
+  for(const k of Object.keys(DB.books)){
+    for(const b of DB.books[k]){
+      if(b.rid)continue;
+      const turno=turnoKey(b.turno)||turnoDaTurma(b.turma);
+      const res=await enviar(k,{...b,turno,dia:b.dia||diaDaData(b.data)},String(b.id),!turno);
+      if(res.ok){b.rid=res.id;b.turno=turno;b.revisar=!turno;save();}
+      else if(res.conflito){b.conflito=true;save();}
+    }
+  }
+}
+
+async function enviar(recurso,b,origem,revisar){
+  const body={recurso,data:b.data,turno:b.turno||null,aula:aulaNum(b.aula),dia_semana:b.dia||diaDaData(b.data),
+    professor:b.prof,componente:b.comp,turma:b.turma,objetivo:b.obj||'',revisar:!!revisar};
+  if(origem)body.origem_local_id=origem;
+  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({}));
+  if(r.status===409)return{ok:false,conflito:j.conflito||true};
+  if(!r.ok)return{ok:false,erro:j.error||('http '+r.status)};
+  DB.tokens=DB.tokens||{}; if(j.delete_token)DB.tokens[j.id]=j.delete_token; save();
+  return{ok:true,id:j.id};
+}
+
 function renderSpaceTabs(){
   $('#spaceTabs').innerHTML=ESPACOS.map(e=>`<button data-esp="${e.k}" class="rounded-2xl py-3 text-[11px] font-extrabold shadow ${esp===e.k?'bg-sage text-white':'bg-white dark:bg-slate-800'}"><i class="fa-solid ${e.i} block text-base mb-1"></i>${e.n}</button>`).join('');
   $$('#spaceTabs [data-esp]').forEach(b=>b.onclick=()=>{esp=b.dataset.esp;renderSpaceTabs();renderBooks();});
   $('#bkTitle').innerHTML=`<i class="fa-solid fa-calendar-plus mr-1 text-sage"></i> Nova reserva • ${ESPACOS.find(e=>e.k===esp).n}`;
 }
+
+function listaAtual(){
+  const remotas=(DB.remote[esp]||[]).map(b=>({...b}));
+  const pendentes=(DB.books[esp]||[]).filter(b=>!b.rid).map(b=>({...b,pendente:true}));
+  return [...remotas,...pendentes].sort((a,b)=>(a.data+String(aulaNum(a.aula))).localeCompare(b.data+String(aulaNum(b.aula))));
+}
+
 function renderBooks(){
-  const list=[...DB.books[esp]].sort((a,b)=>(a.data+a.aula).localeCompare(b.data+b.aula));
+  const list=listaAtual();
   $('#bkList').innerHTML=list.length?list.map(b=>`
     <div class="rounded-2xl p-3 bg-white dark:bg-slate-800 shadow flex gap-3">
       <div class="w-14 shrink-0 text-center bg-sage text-white rounded-xl py-2">
-        <p class="text-[10px]">${b.data.slice(8,10)}/${b.data.slice(5,7)}</p><p class="text-[10px] font-extrabold">${b.aula.slice(0,2)}</p></div>
+        <p class="text-[10px]">${b.data.slice(8,10)}/${b.data.slice(5,7)}</p><p class="text-[10px] font-extrabold">${aulaNum(b.aula)}ª</p></div>
       <div class="flex-1 min-w-0">
         <p class="text-xs font-extrabold truncate">${esc(b.prof)} • ${esc(b.turma)}</p>
-        <p class="text-[11px] text-graphite dark:text-slate-400">${esc(b.dia)} • ${esc(b.comp)} • ${esc(b.aula)}</p>
+        <p class="text-[11px] text-graphite dark:text-slate-400">${esc(b.dia)} • ${turnoLabel(b.turno)} • ${esc(b.comp)} • ${esc(aulaLabel(aulaNum(b.aula)))}</p>
         <p class="text-[11px] mt-1">${esc(b.obj)}</p>
+        ${b.pendente?'<p class="text-[10px] font-bold text-amber-500 mt-1"><i class="fa-solid fa-cloud-arrow-up mr-1"></i>Pendente de envio</p>':''}
+        ${b.revisar?'<p class="text-[10px] font-bold text-amber-500 mt-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Revisar turno</p>':''}
       </div>
-      <button data-del="${b.id}" class="text-red-400 px-1"><i class="fa-solid fa-trash"></i></button>
+      <button data-del="${b.rid||('L'+b.id)}" class="text-red-400 px-1" aria-label="Excluir reserva"><i class="fa-solid fa-trash"></i></button>
     </div>`).join(''):'<p class="text-xs text-graphite dark:text-slate-400">Nenhuma reserva neste espaço ainda.</p>';
-  $$('#bkList [data-del]').forEach(b=>b.onclick=()=>{DB.books[esp]=DB.books[esp].filter(x=>x.id!=b.dataset.del);save();renderBooks();renderProgress();renderReminders();});
+  $$('#bkList [data-del]').forEach(el=>el.onclick=()=>excluir(el.dataset.del));
 }
-$('#bkForm').onsubmit=e=>{
-  e.preventDefault();
-  const b={id:Date.now(),dia:$('#bkDia').value,data:$('#bkData').value,prof:$('#bkProf').value,comp:$('#bkComp').value,turma:$('#bkTurma').value,aula:$('#bkAula').value,obj:$('#bkObj').value.trim()};
-  const msg=$('#bkMsg');
-  const conflito=DB.books[esp].find(x=>x.data===b.data&&x.aula===b.aula);
-  if(conflito){
-    msg.className='text-xs font-bold text-red-500';
-    msg.textContent=`⚠ Conflito: ${ESPACOS.find(e=>e.k===esp).n} já está reservado em ${b.data.split('-').reverse().join('/')} na ${b.aula} por ${conflito.prof}.`;
-    msg.classList.remove('hidden'); return;
+
+async function excluir(ref){
+  if(ref.startsWith('L')){
+    if(!confirm('Excluir esta reserva pendente deste aparelho?'))return;
+    DB.books[esp]=DB.books[esp].filter(x=>'L'+x.id!==ref);save();renderBooks();renderProgress();renderReminders();return;
   }
-  DB.books[esp].push(b);save();
-  msg.className='text-xs font-bold text-sage'; msg.textContent='✔ Reserva confirmada e salva no aparelho.'; msg.classList.remove('hidden');
+  const token=meuToken(ref);
+  let senha=null;
+  if(!token){
+    senha=prompt('Esta reserva foi criada em outro aparelho. Informe a senha da coordenação para excluí-la:');
+    if(!senha)return;
+  }else if(!confirm('Excluir esta reserva? Ela sairá também do servidor da escola.'))return;
+  try{
+    const r=await fetch(API,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:ref,token,admin_password:senha})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok){alert(j.error||'Não foi possível excluir agora.');return;}
+    Object.keys(DB.books).forEach(k=>{DB.books[k]=DB.books[k].filter(x=>x.rid!==ref);});
+    if(DB.tokens)delete DB.tokens[ref];
+    save(); await syncBooks();
+  }catch(e){alert('Sem conexão. Tente excluir novamente quando estiver online.');}
+}
+
+$('#bkData').oninput=()=>{$('#bkDia').value=diaDaData($('#bkData').value);};
+$('#bkTurma').onchange=()=>{const t=turnoDaTurma($('#bkTurma').value);if(t)$('#bkTurno').value=turnoLabel(t);};
+$('#bkSyncBtn').onclick=()=>syncBooks();
+
+$('#bkForm').onsubmit=async e=>{
+  e.preventDefault();
+  const msg=$('#bkMsg');
+  const show=(t,c)=>{msg.className='text-xs font-bold '+c;msg.textContent=t;msg.classList.remove('hidden');};
+  const turno=turnoKey($('#bkTurno').value);
+  if(!turno)return show('⚠ Selecione o turno da aula.','text-red-500');
+  const b={id:Date.now(),dia:diaDaData($('#bkData').value),data:$('#bkData').value,turno,
+    prof:$('#bkProf').value,comp:$('#bkComp').value,turma:$('#bkTurma').value,aula:$('#bkAula').value,obj:$('#bkObj').value.trim()};
+  const nome=ESPACOS.find(e2=>e2.k===esp).n;
+  const dataBR=b.data.split('-').reverse().join('/');
+  /* Conflito = MESMA data + MESMO turno + MESMA aula + MESMO recurso */
+  const conflito=listaAtual().find(x=>x.data===b.data&&turnoKey(x.turno)===turno&&aulaNum(x.aula)===aulaNum(b.aula));
+  if(conflito)return show(`⚠ Conflito: ${nome} já está reservado em ${dataBR}, turno ${turnoLabel(turno)}, ${aulaLabel(aulaNum(b.aula))}, por ${conflito.prof}.`,'text-red-500');
+
+  show('Enviando reserva…','text-graphite dark:text-slate-400');
+  try{
+    const res=await enviar(esp,b,String(b.id),false);
+    if(res.conflito){
+      const c=res.conflito;
+      await syncBooks();
+      return show(`⚠ Conflito: ${nome} já está reservado em ${dataBR}, turno ${turnoLabel(turno)}, ${aulaLabel(aulaNum(b.aula))}${c&&c.professor?' por '+c.professor:''}.`,'text-red-500');
+    }
+    if(!res.ok)throw new Error(res.erro||'falha');
+    b.rid=res.id; DB.books[esp].push(b); save();
+    await apiGet().catch(()=>{});
+    show('✔ Reserva confirmada no servidor da escola.','text-sage');
+  }catch(err){
+    DB.books[esp].push(b); save();
+    show('⚠ Sem conexão: reserva salva neste aparelho e será enviada automaticamente depois.','text-amber-500');
+  }
   $('#bkObj').value=''; renderBooks(); renderProgress(); renderReminders();
-  setTimeout(()=>msg.classList.add('hidden'),3500);
+  setTimeout(()=>msg.classList.add('hidden'),5000);
 };
+window.addEventListener('online',()=>syncBooks());
+
 
 /* ============ TAB 3 ============ */
 function renderGrade(){
@@ -533,12 +665,15 @@ $('#installBtn').onclick=async()=>{if(deferred){deferred.prompt();deferred=null;
 $('#resetBtn').onclick=()=>{if(confirm('Apagar todos os agendamentos, planos e favoritos deste aparelho?')){localStorage.removeItem(K);location.reload();}};
 
 /* ============ INIT ============ */
-opts($('#bkDia'),DIAS); opts($('#bkProf'),ALL_PROFS); opts($('#bkComp'),COMPONENTES); opts($('#bkTurma'),TURMAS); opts($('#bkAula'),AULAS);
+opts($('#bkProf'),ALL_PROFS); opts($('#bkComp'),COMPONENTES); opts($('#bkTurma'),TURMAS); opts($('#bkAula'),AULAS); opts($('#bkTurno'),TURNOS);
 opts($('#fTurno'),Object.keys(HOR)); opts($('#fProf'),ALL_PROFS,'Todos os professores');
-$('#bkData').value=new Date().toISOString().slice(0,10);
+$('#bkData').value=new Date().toLocaleDateString('sv-SE');
+$('#bkDia').value=diaDaData($('#bkData').value);
+$('#bkTurno').value=turnoLabel(turnoDaTurma($('#bkTurma').value)||'matutino');
 $('#fTurno').onchange=renderGrade; $('#fProf').onchange=renderGrade;
 applyTheme(); setQuote(); renderReminders(); renderSpaceTabs(); renderBooks(); renderGrade();
 renderCalViewTabs(); renderLegend(); renderMonth(); renderCal(); renderBim(); renderObs(); go('tab1');
+syncBooks();
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js').catch(()=>{});
 </script>
