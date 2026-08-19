@@ -128,13 +128,14 @@ export const Route = createFileRoute("/api/public/bookings")({
 
         if (error) {
           if (error.code === "23505" || error.message.includes("duplicate key")) {
-            const { data: conflito } = await db
+            let conflitoQuery = db
               .from("bookings")
               .select("professor, turma, aula, turno")
               .eq("recurso", b.recurso)
               .eq("data", b.data)
-              .eq("aula", b.aula)
-              .maybeSingle();
+              .eq("aula", b.aula);
+            conflitoQuery = b.turno ? conflitoQuery.eq("turno", b.turno) : conflitoQuery.is("turno", null);
+            const { data: conflito } = await conflitoQuery.maybeSingle();
             return json({ error: "conflito", conflito: conflito ?? null }, 409);
           }
           return json({ error: error.message }, 500);
