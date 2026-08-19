@@ -665,12 +665,15 @@ $('#installBtn').onclick=async()=>{if(deferred){deferred.prompt();deferred=null;
 $('#resetBtn').onclick=()=>{if(confirm('Apagar todos os agendamentos, planos e favoritos deste aparelho?')){localStorage.removeItem(K);location.reload();}};
 
 /* ============ INIT ============ */
-opts($('#bkDia'),DIAS); opts($('#bkProf'),ALL_PROFS); opts($('#bkComp'),COMPONENTES); opts($('#bkTurma'),TURMAS); opts($('#bkAula'),AULAS);
+opts($('#bkProf'),ALL_PROFS); opts($('#bkComp'),COMPONENTES); opts($('#bkTurma'),TURMAS); opts($('#bkAula'),AULAS); opts($('#bkTurno'),TURNOS);
 opts($('#fTurno'),Object.keys(HOR)); opts($('#fProf'),ALL_PROFS,'Todos os professores');
-$('#bkData').value=new Date().toISOString().slice(0,10);
+$('#bkData').value=new Date().toLocaleDateString('sv-SE');
+$('#bkDia').value=diaDaData($('#bkData').value);
+$('#bkTurno').value=turnoLabel(turnoDaTurma($('#bkTurma').value)||'matutino');
 $('#fTurno').onchange=renderGrade; $('#fProf').onchange=renderGrade;
 applyTheme(); setQuote(); renderReminders(); renderSpaceTabs(); renderBooks(); renderGrade();
 renderCalViewTabs(); renderLegend(); renderMonth(); renderCal(); renderBim(); renderObs(); go('tab1');
+syncBooks();
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js').catch(()=>{});
 </script>
