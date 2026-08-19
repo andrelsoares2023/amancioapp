@@ -27,6 +27,10 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
+  // Reservas são sempre buscadas na rede (nunca cache) para refletir o servidor da escola.
+  if (new URL(req.url).pathname.startsWith("/api/")) return;
+
+
 
   if (req.mode === "navigate") {
     e.respondWith(
