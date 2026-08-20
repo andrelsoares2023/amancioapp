@@ -547,6 +547,19 @@ $('#bkData').oninput=()=>{$('#bkDia').value=diaDaData($('#bkData').value);};
 $('#bkTurma').onchange=()=>{const t=turnoDaTurma($('#bkTurma').value);if(t)$('#bkTurno').value=turnoLabel(t);};
 $('#bkSyncBtn').onclick=()=>syncBooks();
 
+/* Equipe gestora pode reservar sem componente/turma de professor */
+function atualizaCampos(){
+  const gest=isGestao(soNome($('#bkProf').value));
+  const comp=$('#bkComp'), turma=$('#bkTurma');
+  const cAntes=comp.value, tAntes=turma.value;
+  opts(comp, gest?[SEM_COMP,...COMPONENTES]:COMPONENTES);
+  opts(turma, gest?[SEM_TURMA,...TURMAS]:TURMAS);
+  if(gest){ comp.value=SEM_COMP; turma.value=SEM_TURMA; }
+  else{ comp.value=COMPONENTES.includes(cAntes)?cAntes:COMPONENTES[0]; turma.value=TURMAS.includes(tAntes)?tAntes:TURMAS[0];
+        const t=turnoDaTurma(turma.value); if(t)$('#bkTurno').value=turnoLabel(t); }
+}
+$('#bkProf').onchange=atualizaCampos;
+
 $('#bkForm').onsubmit=async e=>{
   e.preventDefault();
   const msg=$('#bkMsg');
