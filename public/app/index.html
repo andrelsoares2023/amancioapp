@@ -50,7 +50,7 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
 <!-- ================= TAB 1 : HOME ================= -->
 <section id="tab1" class="tabpane space-y-4">
   <div class="rounded-3xl overflow-hidden shadow-xl bg-white dark:bg-slate-800">
-    <img src="/app/hero.jpg" alt="Professores e estudantes em sala de aula" class="w-full h-40 object-cover" width="1024" height="576" />
+    <img src="/app/logo-full.jpg" alt="Logomarca oficial AMANCIOapp — Escola Estadual Amâncio de Moraes, Paraíso do Tocantins" class="w-full object-contain bg-[#0f7a3d]" width="720" height="720" />
     <div class="p-5">
       <p class="text-[11px] uppercase tracking-widest text-sage font-extrabold">Inspiração do dia</p>
       <p id="quote" class="mt-2 text-[15px] font-bold leading-snug"></p>
@@ -97,7 +97,7 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
       <div><label class="text-[11px] font-bold">Turno</label><select id="bkTurno" class="fld mt-1" required></select></div>
       <div><label class="text-[11px] font-bold">Horário / Aula</label><select id="bkAula" class="fld mt-1"></select></div>
     </div>
-    <div><label class="text-[11px] font-bold">Professor(a)</label><select id="bkProf" class="fld mt-1"></select></div>
+    <div><label class="text-[11px] font-bold">Responsável pelo agendamento</label><select id="bkProf" class="fld mt-1"></select></div>
     <div class="grid grid-cols-2 gap-2">
       <div><label class="text-[11px] font-bold">Componente</label><select id="bkComp" class="fld mt-1"></select></div>
       <div><label class="text-[11px] font-bold">Turma</label><select id="bkTurma" class="fld mt-1"></select></div>
@@ -260,7 +260,14 @@ const JORNADA=[
   {t:'Tarde (13:00 às 17:25)',itens:[['Patrícia','Letramento Matemático'],['Fernanda Belizário','Letramento em Língua Portuguesa'],['Renata','Desporto / Paradesporto'],['Laís','Produção e Fruição Artístico-cultural']]}
 ];
 const TURMAS_TURNO={Matutino:['62.01','72.01','82.01','92.01'],Vespertino:['62.02','82.02','92.02']};
-const ALL_PROFS=[...new Set([...PROFS_M,...PROFS_V].map(p=>p[0]).concat(['Fernanda Belizário']))].sort();
+/* Equipe gestora: também agenda espaços, sem exigir componente/turma */
+const GESTAO=[['LEILA','Diretora'],['ROSE LYRIA','Coordenadora'],['GEIRLEME','Orientadora'],['TAÍSA','Orientadora'],['JACI','Coordenadora']];
+const GESTAO_NOMES=GESTAO.map(g=>g[0]);
+const SEM_COMP='NENHUM', SEM_TURMA='Nenhuma';
+const isGestao=n=>GESTAO_NOMES.includes(n);
+const ALL_PROFS=[...new Set([...PROFS_M,...PROFS_V].map(p=>p[0]).concat(['Fernanda Belizário']))].sort()
+  .concat(GESTAO.map(([n,c])=>`${n} — ${c}`));
+const soNome=v=>String(v||'').split(' — ')[0].trim();
 
 const ESPACOS=[{k:'video',n:'Sala de Vídeo',i:'fa-film'},{k:'chrome',n:'Chromebooks',i:'fa-laptop'},{k:'lab',n:'Lab. de Ciências',i:'fa-flask'}];
 
@@ -540,6 +547,19 @@ $('#bkData').oninput=()=>{$('#bkDia').value=diaDaData($('#bkData').value);};
 $('#bkTurma').onchange=()=>{const t=turnoDaTurma($('#bkTurma').value);if(t)$('#bkTurno').value=turnoLabel(t);};
 $('#bkSyncBtn').onclick=()=>syncBooks();
 
+/* Equipe gestora pode reservar sem componente/turma de professor */
+function atualizaCampos(){
+  const gest=isGestao(soNome($('#bkProf').value));
+  const comp=$('#bkComp'), turma=$('#bkTurma');
+  const cAntes=comp.value, tAntes=turma.value;
+  opts(comp, gest?[SEM_COMP,...COMPONENTES]:COMPONENTES);
+  opts(turma, gest?[SEM_TURMA,...TURMAS]:TURMAS);
+  if(gest){ comp.value=SEM_COMP; turma.value=SEM_TURMA; }
+  else{ comp.value=COMPONENTES.includes(cAntes)?cAntes:COMPONENTES[0]; turma.value=TURMAS.includes(tAntes)?tAntes:TURMAS[0];
+        const t=turnoDaTurma(turma.value); if(t)$('#bkTurno').value=turnoLabel(t); }
+}
+$('#bkProf').onchange=atualizaCampos;
+
 $('#bkForm').onsubmit=async e=>{
   e.preventDefault();
   const msg=$('#bkMsg');
@@ -676,10 +696,11 @@ $('#resetBtn').onclick=()=>{if(confirm('Apagar todos os agendamentos, planos e f
 
 /* ============ INIT ============ */
 opts($('#bkProf'),ALL_PROFS); opts($('#bkComp'),COMPONENTES); opts($('#bkTurma'),TURMAS); opts($('#bkAula'),AULAS); opts($('#bkTurno'),TURNOS);
-opts($('#fTurno'),Object.keys(HOR)); opts($('#fProf'),ALL_PROFS,'Todos os professores');
+opts($('#fTurno'),Object.keys(HOR)); opts($('#fProf'),ALL_PROFS.filter(n=>!isGestao(soNome(n))),'Todos os professores');
 $('#bkData').value=new Date().toLocaleDateString('sv-SE');
 $('#bkDia').value=diaDaData($('#bkData').value);
 $('#bkTurno').value=turnoLabel(turnoDaTurma($('#bkTurma').value)||'matutino');
+atualizaCampos();
 $('#fTurno').onchange=renderGrade; $('#fProf').onchange=renderGrade;
 applyTheme(); setQuote(); renderReminders(); renderSpaceTabs(); renderBooks(); renderGrade();
 renderCalViewTabs(); renderLegend(); renderMonth(); renderCal(); renderBim(); renderObs(); go('tab1');
