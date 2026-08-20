@@ -700,6 +700,7 @@ opts($('#fTurno'),Object.keys(HOR)); opts($('#fProf'),ALL_PROFS.filter(n=>!isGes
 $('#bkData').value=new Date().toLocaleDateString('sv-SE');
 $('#bkDia').value=diaDaData($('#bkData').value);
 $('#bkTurno').value=turnoLabel(turnoDaTurma($('#bkTurma').value)||'matutino');
+atualizaCampos();
 $('#fTurno').onchange=renderGrade; $('#fProf').onchange=renderGrade;
 applyTheme(); setQuote(); renderReminders(); renderSpaceTabs(); renderBooks(); renderGrade();
 renderCalViewTabs(); renderLegend(); renderMonth(); renderCal(); renderBim(); renderObs(); go('tab1');
