@@ -209,9 +209,19 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
   </div>
 
   <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
+    <h3 class="text-sm font-extrabold"><i class="fa-solid fa-cloud mr-1 text-sage"></i> Agendamentos compartilhados</h3>
+    <ul class="mt-2 text-[11px] space-y-1 text-graphite dark:text-slate-300 list-disc list-inside">
+      <li>As reservas de Sala de Vídeo, Chromebooks e Laboratório ficam em um servidor único da escola: todos os aparelhos veem as mesmas reservas.</li>
+      <li>Um horário só é conflito quando coincidem <b>data + turno + aula + espaço</b>. Manhã e tarde na mesma aula são horários diferentes.</li>
+      <li>Sem internet, a reserva é salva no aparelho e enviada automaticamente quando a conexão voltar.</li>
+      <li>Cada professor(a) exclui as reservas feitas no próprio aparelho. Reservas de outros aparelhos só saem com a <b>senha da coordenação</b>.</li>
+    </ul>
+  </div>
+
+  <div class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow">
     <h3 class="text-sm font-extrabold"><i class="fa-solid fa-database mr-1 text-sage"></i> Dados locais</h3>
-    <p class="text-[11px] text-graphite dark:text-slate-400 mt-1">Agendamentos, planos e favoritos ficam salvos apenas neste aparelho.</p>
-    <button id="resetBtn" class="mt-3 w-full border border-red-400 text-red-500 font-bold rounded-xl py-2.5 text-sm active:scale-95">Apagar todos os dados</button>
+    <p class="text-[11px] text-graphite dark:text-slate-400 mt-1">Planos, favoritos, tema e a cópia local das reservas ficam neste aparelho. As reservas já enviadas continuam no servidor da escola.</p>
+    <button id="resetBtn" class="mt-3 w-full border border-red-400 text-red-500 font-bold rounded-xl py-2.5 text-sm active:scale-95">Apagar dados deste aparelho</button>
   </div>
 </section>
 
