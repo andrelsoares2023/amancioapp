@@ -696,7 +696,7 @@ $('#resetBtn').onclick=()=>{if(confirm('Apagar todos os agendamentos, planos e f
 
 /* ============ INIT ============ */
 opts($('#bkProf'),ALL_PROFS); opts($('#bkComp'),COMPONENTES); opts($('#bkTurma'),TURMAS); opts($('#bkAula'),AULAS); opts($('#bkTurno'),TURNOS);
-opts($('#fTurno'),Object.keys(HOR)); opts($('#fProf'),ALL_PROFS,'Todos os professores');
+opts($('#fTurno'),Object.keys(HOR)); opts($('#fProf'),ALL_PROFS.filter(n=>!isGestao(soNome(n))),'Todos os professores');
 $('#bkData').value=new Date().toLocaleDateString('sv-SE');
 $('#bkDia').value=diaDaData($('#bkData').value);
 $('#bkTurno').value=turnoLabel(turnoDaTurma($('#bkTurma').value)||'matutino');
