@@ -1,10 +1,11 @@
-const CACHE = "amancioapp-2026-v4";
+const CACHE = "amancioapp-2026-v5";
 const ASSETS = [
   "/app/index.html",
   "/app/manifest.webmanifest",
-  "/app/hero.jpg",
+  "/app/logo-full.jpg",
   "/app/icon-192.png",
   "/app/icon-512.png",
+  "/app/apple-touch-icon.png",
 ];
 
 
