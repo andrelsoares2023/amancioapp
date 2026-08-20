@@ -260,7 +260,14 @@ const JORNADA=[
   {t:'Tarde (13:00 às 17:25)',itens:[['Patrícia','Letramento Matemático'],['Fernanda Belizário','Letramento em Língua Portuguesa'],['Renata','Desporto / Paradesporto'],['Laís','Produção e Fruição Artístico-cultural']]}
 ];
 const TURMAS_TURNO={Matutino:['62.01','72.01','82.01','92.01'],Vespertino:['62.02','82.02','92.02']};
-const ALL_PROFS=[...new Set([...PROFS_M,...PROFS_V].map(p=>p[0]).concat(['Fernanda Belizário']))].sort();
+/* Equipe gestora: também agenda espaços, sem exigir componente/turma */
+const GESTAO=[['LEILA','Diretora'],['ROSE LYRIA','Coordenadora'],['GEIRLEME','Orientadora'],['TAÍSA','Orientadora'],['JACI','Coordenadora']];
+const GESTAO_NOMES=GESTAO.map(g=>g[0]);
+const SEM_COMP='NENHUM', SEM_TURMA='Nenhuma';
+const isGestao=n=>GESTAO_NOMES.includes(n);
+const ALL_PROFS=[...new Set([...PROFS_M,...PROFS_V].map(p=>p[0]).concat(['Fernanda Belizário']))].sort()
+  .concat(GESTAO.map(([n,c])=>`${n} — ${c}`));
+const soNome=v=>String(v||'').split(' — ')[0].trim();
 
 const ESPACOS=[{k:'video',n:'Sala de Vídeo',i:'fa-film'},{k:'chrome',n:'Chromebooks',i:'fa-laptop'},{k:'lab',n:'Lab. de Ciências',i:'fa-flask'}];
 
