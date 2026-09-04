@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.bookings_gestao_overlap() FROM PUBLIC, anon, authenticated;
