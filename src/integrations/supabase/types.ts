@@ -16,15 +16,18 @@ export type Database = {
     Tables: {
       bookings: {
         Row: {
-          aula: number
+          aula: number | null
           componente: string
           created_at: string
           data: string
           delete_token: string
           dia_semana: string
+          hora_fim: string | null
+          hora_inicio: string | null
           id: string
           objetivo: string
           origem_local_id: string | null
+          perfil: string
           professor: string
           recurso: string
           revisar: boolean
@@ -32,15 +35,18 @@ export type Database = {
           turno: string | null
         }
         Insert: {
-          aula: number
+          aula?: number | null
           componente: string
           created_at?: string
           data: string
           delete_token: string
           dia_semana: string
+          hora_fim?: string | null
+          hora_inicio?: string | null
           id?: string
           objetivo?: string
           origem_local_id?: string | null
+          perfil?: string
           professor: string
           recurso: string
           revisar?: boolean
@@ -48,15 +54,18 @@ export type Database = {
           turno?: string | null
         }
         Update: {
-          aula?: number
+          aula?: number | null
           componente?: string
           created_at?: string
           data?: string
           delete_token?: string
           dia_semana?: string
+          hora_fim?: string | null
+          hora_inicio?: string | null
           id?: string
           objetivo?: string
           origem_local_id?: string | null
+          perfil?: string
           professor?: string
           recurso?: string
           revisar?: boolean
