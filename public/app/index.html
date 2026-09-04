@@ -83,28 +83,32 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
 
 <!-- ================= TAB 2 : AGENDAMENTOS ================= -->
 <section id="tab2" class="tabpane hidden space-y-4">
-  <div class="grid grid-cols-3 gap-2" id="spaceTabs"></div>
+  <div class="grid grid-cols-2 gap-2" id="spaceTabs"></div>
 
-  <form id="bkForm" class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-3">
-    <h3 class="text-sm font-extrabold" id="bkTitle"></h3>
   <form id="bkForm" class="rounded-2xl p-4 bg-white dark:bg-slate-800 shadow space-y-3">
     <h3 class="text-sm font-extrabold" id="bkTitle"></h3>
     <div class="grid grid-cols-2 gap-2">
       <div><label class="text-[11px] font-bold">Data</label><input type="date" id="bkData" class="fld mt-1" required /></div>
       <div><label class="text-[11px] font-bold">Dia da semana</label><input type="text" id="bkDia" class="fld mt-1 bg-mint dark:bg-slate-700" readonly aria-readonly="true" /></div>
     </div>
-    <div class="grid grid-cols-2 gap-2">
-      <div><label class="text-[11px] font-bold">Turno</label><select id="bkTurno" class="fld mt-1" required></select></div>
-      <div><label class="text-[11px] font-bold">Horário / Aula</label><select id="bkAula" class="fld mt-1"></select></div>
-    </div>
     <div><label class="text-[11px] font-bold">Responsável pelo agendamento</label><select id="bkProf" class="fld mt-1"></select></div>
-    <div class="grid grid-cols-2 gap-2">
-      <div><label class="text-[11px] font-bold">Componente</label><select id="bkComp" class="fld mt-1"></select></div>
-      <div><label class="text-[11px] font-bold">Turma</label><select id="bkTurma" class="fld mt-1"></select></div>
+    <div id="bkProfFields" class="space-y-3">
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="text-[11px] font-bold">Turno</label><select id="bkTurno" class="fld mt-1"></select></div>
+        <div><label class="text-[11px] font-bold">Horário / Aula</label><select id="bkAula" class="fld mt-1"></select></div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="text-[11px] font-bold">Componente</label><select id="bkComp" class="fld mt-1"></select></div>
+        <div><label class="text-[11px] font-bold">Turma</label><select id="bkTurma" class="fld mt-1"></select></div>
+      </div>
     </div>
-    <div><label class="text-[11px] font-bold">Assunto / Objetivos da aula</label><textarea id="bkObj" rows="2" class="fld mt-1" placeholder="Ex.: Sistema solar — observação e registro" required></textarea></div>
+    <div id="bkGestaoFields" class="grid grid-cols-2 gap-2 hidden">
+      <div><label class="text-[11px] font-bold">Horário inicial</label><input type="time" id="bkHi" class="fld mt-1" value="07:00" /></div>
+      <div><label class="text-[11px] font-bold">Horário final</label><input type="time" id="bkHf" class="fld mt-1" value="08:40" /></div>
+    </div>
+    <div><label class="text-[11px] font-bold" id="bkObjLabel">Assunto / Objetivos da aula</label><textarea id="bkObj" rows="2" class="fld mt-1" placeholder="Ex.: Sistema solar — observação e registro" required></textarea></div>
     <p id="bkMsg" class="text-xs font-bold hidden"></p>
-    <button class="w-full bg-sage text-white font-extrabold rounded-xl py-3 active:scale-95 transition"><i class="fa-solid fa-calendar-plus mr-1"></i> Reservar espaço</button>
+    <button id="bkSubmit" type="submit" class="w-full bg-sage text-white font-extrabold rounded-xl py-3 active:scale-95 transition disabled:opacity-60"><i class="fa-solid fa-calendar-plus mr-1"></i> Reservar espaço</button>
   </form>
 
 
@@ -240,7 +244,8 @@ tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{
 <script>
 /* ============ STORAGE ============ */
 const K='educato2026';
-const DB=Object.assign({books:{video:[],chrome:[],lab:[]},remote:{video:[],chrome:[],lab:[]},tokens:{},plans:[],favs:[],visited:[],theme:'light'},JSON.parse(localStorage.getItem(K)||'{}'));
+const DB=Object.assign({books:{},remote:{},tokens:{},queue:[],plans:[],favs:[],visited:[],theme:'light'},JSON.parse(localStorage.getItem(K)||'{}'));
+DB.books=DB.books||{}; DB.remote=DB.remote||{}; DB.tokens=DB.tokens||{}; DB.queue=Array.isArray(DB.queue)?DB.queue:[];
 const save=()=>localStorage.setItem(K,JSON.stringify(DB));
 
 /* ============ DADOS ============ */

@@ -1,21 +1,46 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
-const RECURSOS = ["video", "chrome", "lab"] as const;
+/** Configuração única de recursos (espaços) reconhecidos pelo sistema. */
+export const RECURSOS = [
+  { key: "video", name: "Sala de Vídeo" },
+  { key: "chrome", name: "Chromebooks" },
+  { key: "lab", name: "Lab. de Ciências" },
+  { key: "datashow", name: "Sala de DataShow" },
+] as const;
 
-const bookingSchema = z.object({
-  recurso: z.enum(RECURSOS),
+const RECURSO_KEYS = RECURSOS.map((r) => r.key) as unknown as [string, ...string[]];
+
+const base = {
+  recurso: z.enum(RECURSO_KEYS),
   data: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  turno: z.enum(["matutino", "vespertino"]).nullable().optional(),
-  aula: z.coerce.number().int().min(1).max(5),
   dia_semana: z.string().min(1).max(40),
   professor: z.string().min(1).max(120),
+  objetivo: z.string().max(2000).default(""),
+  origem_local_id: z.string().min(1).max(64).nullable().optional(),
+  revisar: z.boolean().optional(),
+};
+
+const professorSchema = z.object({
+  ...base,
+  perfil: z.literal("professor").optional(),
+  turno: z.enum(["matutino", "vespertino"]),
+  aula: z.coerce.number().int().min(1).max(5),
   componente: z.string().min(1).max(120),
   turma: z.string().min(1).max(40),
-  objetivo: z.string().max(2000).default(""),
-  origem_local_id: z.string().max(64).nullable().optional(),
-  revisar: z.boolean().optional(),
 });
+
+const gestaoSchema = z.object({
+  ...base,
+  perfil: z.literal("gestao"),
+  turno: z.enum(["matutino", "vespertino"]).nullable().optional(),
+  hora_inicio: z.string().regex(/^\d{2}:\d{2}$/),
+  hora_fim: z.string().regex(/^\d{2}:\d{2}$/),
+  componente: z.string().max(120).optional(),
+  turma: z.string().max(40).optional(),
+});
+
+const bookingSchema = z.union([gestaoSchema, professorSchema]);
 
 const deleteSchema = z.object({
   id: z.string().uuid(),
@@ -24,11 +49,11 @@ const deleteSchema = z.object({
 });
 
 const PUBLIC_COLUMNS =
-  "id, recurso, data, turno, aula, dia_semana, professor, componente, turma, objetivo, revisar, origem_local_id, created_at";
+  "id, recurso, data, turno, aula, dia_semana, professor, componente, turma, objetivo, revisar, origem_local_id, perfil, hora_inicio, hora_fim, created_at";
 
 /** Rate limit simples por IP (janela deslizante em memória do worker). */
 const hits = new Map<string, number[]>();
-function rateLimited(ip: string, limit = 30, windowMs = 60_000) {
+function rateLimited(ip: string, limit = 60, windowMs = 60_000) {
   const now = Date.now();
   const list = (hits.get(ip) ?? []).filter((t) => now - t < windowMs);
   list.push(now);
@@ -63,24 +88,47 @@ function newToken() {
   return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+function isConflict(error: { code?: string | null; message: string }) {
+  return (
+    error.code === "23505" ||
+    error.message.includes("duplicate key") ||
+    error.message.includes("conflito_horario")
+  );
+}
+
 export const Route = createFileRoute("/api/public/bookings")({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        const db = await admin();
         const url = new URL(request.url);
+
+        // Verificação real da API (usada pelo app para diferenciar "sem internet"
+        // de "servidor indisponível").
+        if (url.searchParams.get("health") === "1") {
+          try {
+            const db = await admin();
+            const { error } = await db.from("bookings").select("id").limit(1);
+            if (error) return json({ ok: false, error: error.message }, 503);
+            return json({ ok: true, recursos: RECURSOS });
+          } catch (e) {
+            return json({ ok: false, error: (e as Error).message }, 503);
+          }
+        }
+
+        const db = await admin();
         const recurso = url.searchParams.get("recurso");
         let query = db.from("bookings").select(PUBLIC_COLUMNS).order("data", { ascending: true });
-        if (recurso && (RECURSOS as readonly string[]).includes(recurso)) {
+        if (recurso && (RECURSO_KEYS as readonly string[]).includes(recurso)) {
           query = query.eq("recurso", recurso);
         }
         const { data, error } = await query;
         if (error) return json({ error: error.message }, 500);
-        return json({ bookings: data ?? [] });
+        return json({ bookings: data ?? [], recursos: RECURSOS });
       },
 
       POST: async ({ request }) => {
-        if (rateLimited(clientIp(request))) return json({ error: "Muitas tentativas. Aguarde um minuto." }, 429);
+        if (rateLimited(clientIp(request)))
+          return json({ error: "Muitas tentativas. Aguarde um minuto." }, 429);
 
         let payload: unknown;
         try {
@@ -89,9 +137,11 @@ export const Route = createFileRoute("/api/public/bookings")({
           return json({ error: "Corpo inválido." }, 400);
         }
         const parsed = bookingSchema.safeParse(payload);
-        if (!parsed.success) return json({ error: "Dados inválidos.", detalhes: parsed.error.issues }, 400);
+        if (!parsed.success)
+          return json({ error: "Dados inválidos.", detalhes: parsed.error.issues }, 400);
 
         const b = parsed.data;
+        const perfil = b.perfil === "gestao" ? "gestao" : "professor";
         const db = await admin();
 
         // Reenvio da mesma reserva local: devolve a que já existe, nunca duplica.
@@ -106,46 +156,55 @@ export const Route = createFileRoute("/api/public/bookings")({
           }
         }
 
-        const delete_token = newToken();
-        const { data, error } = await db
-          .from("bookings")
-          .insert({
-            recurso: b.recurso,
-            data: b.data,
-            turno: b.turno ?? null,
-            aula: b.aula,
-            dia_semana: b.dia_semana,
-            professor: b.professor,
-            componente: b.componente,
-            turma: b.turma,
-            objetivo: b.objetivo ?? "",
-            origem_local_id: b.origem_local_id ?? null,
-            revisar: b.revisar ?? false,
-            delete_token,
-          })
-          .select("id")
-          .single();
+        const isGestao = perfil === "gestao";
+        const row = {
+          recurso: b.recurso,
+          data: b.data,
+          turno: isGestao ? (b as z.infer<typeof gestaoSchema>).turno ?? null : (b as z.infer<typeof professorSchema>).turno,
+          aula: isGestao ? null : (b as z.infer<typeof professorSchema>).aula,
+          dia_semana: b.dia_semana,
+          professor: b.professor,
+          componente: isGestao ? (b.componente || "NENHUM") : (b as z.infer<typeof professorSchema>).componente,
+          turma: isGestao ? (b.turma || "Nenhuma") : (b as z.infer<typeof professorSchema>).turma,
+          objetivo: b.objetivo ?? "",
+          origem_local_id: b.origem_local_id ?? null,
+          revisar: b.revisar ?? false,
+          perfil,
+          hora_inicio: isGestao ? (b as z.infer<typeof gestaoSchema>).hora_inicio : null,
+          hora_fim: isGestao ? (b as z.infer<typeof gestaoSchema>).hora_fim : null,
+          delete_token: newToken(),
+        };
+
+        const { data, error } = await db.from("bookings").insert(row).select("id").single();
 
         if (error) {
-          if (error.code === "23505" || error.message.includes("duplicate key")) {
+          if (isConflict(error)) {
             let conflitoQuery = db
               .from("bookings")
-              .select("professor, turma, aula, turno")
+              .select("professor, turma, aula, turno, hora_inicio, hora_fim, perfil")
               .eq("recurso", b.recurso)
-              .eq("data", b.data)
-              .eq("aula", b.aula);
-            conflitoQuery = b.turno ? conflitoQuery.eq("turno", b.turno) : conflitoQuery.is("turno", null);
-            const { data: conflito } = await conflitoQuery.maybeSingle();
+              .eq("data", b.data);
+            if (isGestao) {
+              conflitoQuery = conflitoQuery.eq("perfil", "gestao");
+            } else {
+              const p = b as z.infer<typeof professorSchema>;
+              conflitoQuery = conflitoQuery.eq("perfil", "professor").eq("aula", p.aula).eq("turno", p.turno);
+            }
+            const { data: conflito } = await conflitoQuery.limit(1).maybeSingle();
             return json({ error: "conflito", conflito: conflito ?? null }, 409);
+          }
+          if (error.message.includes("horario_invalido")) {
+            return json({ error: "Horário final deve ser depois do horário inicial." }, 400);
           }
           return json({ error: error.message }, 500);
         }
 
-        return json({ id: data.id, delete_token }, 201);
+        return json({ id: data.id, delete_token: row.delete_token }, 201);
       },
 
       DELETE: async ({ request }) => {
-        if (rateLimited(clientIp(request), 20)) return json({ error: "Muitas tentativas. Aguarde um minuto." }, 429);
+        if (rateLimited(clientIp(request), 30))
+          return json({ error: "Muitas tentativas. Aguarde um minuto." }, 429);
 
         let payload: unknown;
         try {
